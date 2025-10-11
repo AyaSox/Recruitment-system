@@ -1,0 +1,22 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npm run build",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install",
+  "framework": "vite",
+  "outputDirectory": "dist",
+  "env": {
+    "VITE_API_URL": {
+      "description": "Backend API URL from Railway",
+      "value": "https://your-railway-url.up.railway.app"
+    },
+    "VITE_APP_NAME": {
+      "description": "Application Name",
+      "value": "ATS Recruitment System"
+    },
+    "VITE_APP_VERSION": {
+      "description": "Application Version",
+      "value": "2.0.0"
+    }
+  }
+}
