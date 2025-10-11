@@ -1,0 +1,11 @@
+# Nixpacks build configuration for Railway
+providers = ["dotnet"]
+
+[phases.build]
+cmds = ["dotnet publish ATSRecruitSys.Server/ATSRecruitSys.Server.csproj -c Release -o out"]
+
+[phases.start] 
+cmd = "cd out && dotnet ATSRecruitSys.Server.dll"
+
+[variables]
+ASPNETCORE_ENVIRONMENT = "Production"

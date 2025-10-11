@@ -1,0 +1,1 @@
+web: cd ATSRecruitSys.Server && dotnet ATSRecruitSys.Server.dll
