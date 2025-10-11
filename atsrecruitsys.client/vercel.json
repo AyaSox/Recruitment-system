@@ -31,25 +31,10 @@
     }
   ],
   "env": {
-    "VITE_API_URL": {
-      "description": "Backend API URL from Railway",
-      "value": "https://recruitment-system-production-7f72.up.railway.app"
-    },
-    "VITE_APP_NAME": {
-      "description": "Application Name",
-      "value": "ATS Recruitment System"
-    },
-    "VITE_APP_VERSION": {
-      "description": "Application Version",
-      "value": "2.0.0"
-    },
-    "VITE_ENABLE_ANALYTICS": {
-      "description": "Enable analytics",
-      "value": "false"
-    },
-    "VITE_LOG_LEVEL": {
-      "description": "Logging level",
-      "value": "error"
-    }
+    "VITE_API_URL": "https://recruitment-system-production-7f72.up.railway.app",
+    "VITE_APP_NAME": "ATS Recruitment System",
+    "VITE_APP_VERSION": "2.0.0",
+    "VITE_ENABLE_ANALYTICS": "false",
+    "VITE_LOG_LEVEL": "error"
   }
 }
