@@ -175,13 +175,31 @@ app.MapControllers();
 // Initialize database and create default users
 using (var scope = app.Services.CreateScope())
 {
-    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-    var logger = scope.ServiceProvider.GetRequiredService<ILogger<DatabaseSeeder>>();
-    var seeder = new DatabaseSeeder(context, userManager, roleManager, logger);
-    
-    await seeder.SeedDatabaseAsync();
+    try
+    {
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        
+        logger.LogInformation("Starting database initialization...");
+        
+        // Apply pending migrations
+        await context.Database.MigrateAsync();
+        logger.LogInformation("Database migrations applied successfully");
+        
+        // Seed database
+        var seeder = new DatabaseSeeder(context, userManager, roleManager, logger);
+        await seeder.SeedDatabaseAsync();
+        
+        logger.LogInformation("Database initialization completed");
+    }
+    catch (Exception ex)
+    {
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while initializing the database");
+        // Don't throw - let the app start anyway
+    }
 }
 
 app.Run();
