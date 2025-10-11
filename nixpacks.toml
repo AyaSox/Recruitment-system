@@ -1,11 +1,14 @@
-# Nixpacks build configuration for Railway
-providers = ["dotnet"]
+providers = ["csharp"]
+
+[phases.setup]
+nixPkgs = ["dotnet-sdk_8"]
 
 [phases.build]
 cmds = ["dotnet publish ATSRecruitSys.Server/ATSRecruitSys.Server.csproj -c Release -o out"]
 
-[phases.start] 
+[phases.start]
 cmd = "cd out && dotnet ATSRecruitSys.Server.dll"
 
 [variables]
 ASPNETCORE_ENVIRONMENT = "Production"
+DOTNET_ROOT = "/nix/store/*-dotnet-sdk-8.*/share/dotnet"
