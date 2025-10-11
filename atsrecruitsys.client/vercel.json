@@ -8,7 +8,7 @@
   "env": {
     "VITE_API_URL": {
       "description": "Backend API URL from Railway",
-      "value": "https://your-railway-url.up.railway.app"
+      "value": "https://recruitment-system-production-7f72.up.railway.app"
     },
     "VITE_APP_NAME": {
       "description": "Application Name",
