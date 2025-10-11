@@ -1,0 +1,28 @@
+{
+  "name": "ATS Recruitment System",
+  "description": "A comprehensive Applicant Tracking System built with .NET 8 and React for South African recruitment needs",
+  "services": [
+    {
+      "name": "web",
+      "icon": "dotnet",
+      "source": {
+        "repo": "https://github.com/AyaSox/Recruitment-system"
+      },
+      "build": {
+        "command": "dotnet publish ATSRecruitSys.Server/ATSRecruitSys.Server.csproj -c Release -o out"
+      },
+      "start": {
+        "command": "cd out && dotnet ATSRecruitSys.Server.dll"
+      },
+      "environment": {
+        "ASPNETCORE_ENVIRONMENT": "Production"
+      }
+    }
+  ],
+  "databases": [
+    {
+      "name": "postgres",
+      "type": "postgresql"
+    }
+  ]
+}

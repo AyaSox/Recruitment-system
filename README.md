@@ -109,23 +109,47 @@ npm run dev
 
 This project is configured for easy deployment to Railway.
 
-### Prerequisites
+### Quick Deploy (Recommended)
+
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/new/template?template=https://github.com/AyaSox/Recruitment-system)
+
+Click the button above to deploy directly to Railway!
+
+### Manual Deployment
+
+#### Prerequisites
 - GitHub account
 - Railway account (free tier available)
 
-### Deploy Steps
+#### If Repository Not Found in Railway:
 
-1. Fork or clone this repository to your GitHub account
+**Option A: Make Repository Public**
+1. Go to your GitHub repository: https://github.com/AyaSox/Recruitment-system
+2. Click "Settings" (repository settings, not your profile)
+3. Scroll to "Danger Zone" at the bottom
+4. Click "Change visibility" ? "Make public"
+5. Return to Railway and try again
 
-2. Go to [Railway](https://railway.app) and sign up with GitHub
+**Option B: Grant Railway Access**
+1. In Railway, click your profile picture
+2. Go to "Account Settings" ? "Integrations"
+3. Click "Configure" next to GitHub
+4. Grant Railway access to your repositories
+5. Make sure "AyaSox/Recruitment-system" is selected
 
-3. Create a new project and deploy from your GitHub repository
+**Option C: Deploy via Empty Project**
+1. In Railway, click "New Project"
+2. Select "Empty Project"
+3. Click "Deploy from GitHub repo"
+4. If still not showing, type the full URL: https://github.com/AyaSox/Recruitment-system
 
-4. Add a PostgreSQL database:
-- Click "New" in your Railway project
-- Select "Database" then "PostgreSQL"
+#### Deploy Steps
 
-5. Configure environment variables in Railway:
+1. Add a PostgreSQL database:
+   - Click "New" in your Railway project
+   - Select "Database" then "PostgreSQL"
+
+2. Configure environment variables in Railway:
 ```
 ASPNETCORE_ENVIRONMENT=Production
 ConnectionStrings__DefaultConnection=${{Postgres.DATABASE_URL}}
@@ -134,7 +158,9 @@ JwtSettings__Issuer=ATSRecruitSys
 JwtSettings__Audience=ATSRecruitSysUsers
 ```
 
-6. Railway will automatically build and deploy your application
+3. Railway will automatically build and deploy your application
+
+4. Generate domain: Go to Settings ? Networking ? Generate Domain
 
 For detailed deployment instructions, see [RAILWAY-DEPLOYMENT-GUIDE.md](RAILWAY-DEPLOYMENT-GUIDE.md)
 
