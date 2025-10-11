@@ -180,7 +180,8 @@ using (var scope = app.Services.CreateScope())
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
         var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        var loggerFactory = scope.ServiceProvider.GetRequiredService<ILoggerFactory>();
+        var logger = loggerFactory.CreateLogger<DatabaseSeeder>();
         
         logger.LogInformation("Starting database initialization...");
         
@@ -196,7 +197,8 @@ using (var scope = app.Services.CreateScope())
     }
     catch (Exception ex)
     {
-        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        var loggerFactory = scope.ServiceProvider.GetRequiredService<ILoggerFactory>();
+        var logger = loggerFactory.CreateLogger<DatabaseSeeder>();
         logger.LogError(ex, "An error occurred while initializing the database");
         // Don't throw - let the app start anyway
     }
