@@ -122,8 +122,8 @@ This project is configured for easy deployment to Railway.
 3. Create a new project and deploy from your GitHub repository
 
 4. Add a PostgreSQL database:
-   - Click "New" in your Railway project
-   - Select "Database" ? "PostgreSQL"
+- Click "New" in your Railway project
+- Select "Database" then "PostgreSQL"
 
 5. Configure environment variables in Railway:
 ```
@@ -150,10 +150,10 @@ ATSRecruitSys/
 ?   ??? DTOs/                      # Data transfer objects
 ??? atsrecruitsys.client/          # React frontend
 ?   ??? src/
-?   ?   ??? components/            # React components
-?   ?   ??? pages/                 # Page components
-?   ?   ??? services/              # API services
-?   ?   ??? types/                 # TypeScript definitions
+?       ??? components/            # React components
+?       ??? pages/                 # Page components
+?       ??? services/              # API services
+?       ??? types/                 # TypeScript definitions
 ??? screenshots/                   # Application screenshots
 ??? railway.json                   # Railway deployment config
 ??? nixpacks.toml                  # Build configuration
