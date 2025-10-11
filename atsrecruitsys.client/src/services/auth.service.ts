@@ -17,7 +17,7 @@ export interface StoredAuthData {
 
 const AuthService = {
   login: async (data: LoginRequest): Promise<AuthResponse> => {
-    const response = await api.post<AuthResponse>('/auth/login', data);
+    const response = await api.post<AuthResponse>('/api/auth/login', data);
     return response.data;
   },
 

@@ -35,19 +35,19 @@ const ApplicationService = {
       params.searchTerm = filters.searchTerm;
     }
 
-    const response = await api.get<ApplicationsResponse>('/applications', { params });
+    const response = await api.get<ApplicationsResponse>('/api/applications', { params });
     return response.data;
   },
 
   // Get a specific application by ID (Admin/Recruiter/Applicant if owns)
   getApplication: async (id: number): Promise<Application> => {
-    const response = await api.get<Application>(`/applications/${id}`);
+    const response = await api.get<Application>(`/api/applications/${id}`);
     return response.data;
   },
 
   // Get all applications for the current user (Applicant)
   getMyApplications: async (): Promise<MyApplication[]> => {
-    const response = await api.get<MyApplication[]>('/applications/my');
+    const response = await api.get<MyApplication[]>('/api/applications/my');
     return response.data;
   },
 
@@ -73,7 +73,7 @@ const ApplicationService = {
     formData.append('resume', resumeFile);
 
     try {
-      const response = await api.post<{ success: boolean; message: string }>('/applications/simple', formData, {
+      const response = await api.post<{ success: boolean; message: string }>('/api/applications/simple', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -115,7 +115,7 @@ const ApplicationService = {
     formData.append('resume', resumeFile);
 
     try {
-      const response = await api.post<Application>('/applications', formData, {
+      const response = await api.post<Application>('/api/applications', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -154,7 +154,7 @@ const ApplicationService = {
     }
 
     const response = await api.put<Application>(
-      `/applications/${requestData.id}/status`,
+      `/api/applications/${requestData.id}/status`,
       requestData
     );
     return response.data;
@@ -162,7 +162,7 @@ const ApplicationService = {
 
   // Get resume file for an application (Admin/Recruiter/Applicant if owns)
   getResumeFile: async (applicationId: number): Promise<Blob> => {
-    const response = await api.get<Blob>(`/applications/${applicationId}/resume`, {
+    const response = await api.get<Blob>(`/api/applications/${applicationId}/resume`, {
       responseType: 'blob',
     });
     return response.data;
@@ -170,13 +170,13 @@ const ApplicationService = {
 
   // Get application statistics for a specific job (Admin/Recruiter)
   getJobApplicationStats: async (jobId: number): Promise<ApplicationStat[]> => {
-    const response = await api.get<ApplicationStat[]>(`/applications/stats/${jobId}`);
+    const response = await api.get<ApplicationStat[]>(`/api/applications/stats/${jobId}`);
     return response.data;
   },
 
   // Get overall application statistics (Admin/Recruiter)
   getOverallApplicationStats: async (): Promise<ApplicationStat[]> => {
-    const response = await api.get<ApplicationStat[]>('/applications/stats');
+    const response = await api.get<ApplicationStat[]>('/api/applications/stats');
     return response.data;
   },
 };

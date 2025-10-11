@@ -58,14 +58,14 @@ class AuditService {
       params.append('toDate', filters.toDate);
     }
 
-    const response = await api.get(`/audit?${params}`);
+    const response = await api.get(`/api/audit?${params}`);
     
     // Handle direct response (not wrapped in Result)
     return response.data;
   }
 
   async getAuditStats(): Promise<AuditStats> {
-    const response = await api.get('/audit/stats');
+    const response = await api.get('/api/audit/stats');
     
     // Handle direct response (not wrapped in Result)
     return response.data;

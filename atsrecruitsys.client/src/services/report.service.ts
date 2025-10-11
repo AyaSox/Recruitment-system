@@ -31,7 +31,7 @@ class ReportService {
     try {
       console.log('?? Fetching applications for Excel report...');
       
-      const response = await api.get('/applications', {
+      const response = await api.get('/api/applications', {
         params: {
           page: 0,
           pageSize: 10000

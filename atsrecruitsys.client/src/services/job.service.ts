@@ -58,13 +58,13 @@ const JobService = {
       }
     });
 
-    const response = await api.get<PaginatedJobResponse>('/jobs', { params });
+    const response = await api.get<PaginatedJobResponse>('/api/jobs', { params });
     return response.data;
   },
 
   // Get a public job (available to non-authenticated users)
   getPublicJob: async (id: number): Promise<Job> => {
-    const response = await api.get<Job>(`/jobs/${id}`);
+    const response = await api.get<Job>(`/api/jobs/${id}`);
     return response.data;
   },
 
@@ -73,7 +73,7 @@ const JobService = {
     searchCriteria: AdvancedJobSearchRequest
   ): Promise<PaginatedJobResponse> => {
     const response = await api.post<PaginatedJobResponse>(
-      '/jobs/search/advanced',
+      '/api/jobs/search/advanced',
       searchCriteria
     );
     return response.data;
@@ -81,7 +81,7 @@ const JobService = {
 
   // Get available search filters
   getSearchFilters: async (): Promise<SearchFiltersResponse> => {
-    const response = await api.get<SearchFiltersResponse>('/jobs/search/filters');
+    const response = await api.get<SearchFiltersResponse>('/api/jobs/search/filters');
     return response.data;
   },
 
@@ -90,7 +90,7 @@ const JobService = {
     page: number = 0,
     pageSize: number = 10
   ): Promise<PaginatedJobResponse> => {
-    const response = await api.get<PaginatedJobResponse>('/jobs/pending-approval', {
+    const response = await api.get<PaginatedJobResponse>('/api/jobs/pending-approval', {
       params: { page, pageSize },
     });
     return response.data;
@@ -98,49 +98,49 @@ const JobService = {
 
   // Get available locations
   getAvailableLocations: async (): Promise<string[]> => {
-    const response = await api.get<string[]>('/jobs/locations');
+    const response = await api.get<string[]>('/api/jobs/locations');
     return response.data;
   },
 
   // Get available departments
   getAvailableDepartments: async (): Promise<string[]> => {
-    const response = await api.get<string[]>('/jobs/departments');
+    const response = await api.get<string[]>('/api/jobs/departments');
     return response.data;
   },
 
   // Get a specific job by ID (authenticated)
   getJob: async (id: number): Promise<Job> => {
-    const response = await api.get<Job>(`/jobs/${id}`);
+    const response = await api.get<Job>(`/api/jobs/${id}`);
     return response.data;
   },
 
   // Create a new job
   createJob: async (data: CreateJobRequest): Promise<Job> => {
-    const response = await api.post<Job>('/jobs', data);
+    const response = await api.post<Job>('/api/jobs', data);
     return response.data;
   },
 
   // Update an existing job
   updateJob: async (data: UpdateJobRequest): Promise<Job> => {
-    const response = await api.put<Job>(`/jobs/${data.id}`, data);
+    const response = await api.put<Job>(`/api/jobs/${data.id}`, data);
     return response.data;
   },
 
   // Publish a job (set isPublished to true)
   publishJob: async (id: number): Promise<Job> => {
-    const response = await api.put<{ success: boolean; message: string; data: Job }>(`/jobs/${id}/publish`);
+    const response = await api.put<{ success: boolean; message: string; data: Job }>(`/api/jobs/${id}/publish`);
     return response.data.data;
   },
 
   // Unpublish a job (set isPublished to false)
   unpublishJob: async (id: number): Promise<Job> => {
-    const response = await api.put<{ success: boolean; message: string; data: Job }>(`/jobs/${id}/unpublish`);
+    const response = await api.put<{ success: boolean; message: string; data: Job }>(`/api/jobs/${id}/unpublish`);
     return response.data.data;
   },
 
   // Delete a job
   deleteJob: async (id: number): Promise<void> => {
-    await api.delete(`/jobs/${id}`);
+    await api.delete(`/api/jobs/${id}`);
   },
 
   // Set job publish status (toggle publish/unpublish) - Fixed method
@@ -169,7 +169,7 @@ const JobService = {
         skills: currentJob.skills,
       };
 
-      const response = await api.put<Job>(`/jobs/${id}`, updateData);
+      const response = await api.put<Job>(`/api/jobs/${id}`, updateData);
       return response.data;
     } catch (error) {
       console.error('Error updating job publish status:', error);
@@ -179,7 +179,7 @@ const JobService = {
 
   // Approve or reject a job (Admin only)
   approveJob: async (data: JobApprovalRequest): Promise<Job> => {
-    const response = await api.put<Job>(`/jobs/${data.jobId}/approve`, data);
+    const response = await api.put<Job>(`/api/jobs/${data.jobId}/approve`, data);
     return response.data;
   },
 
