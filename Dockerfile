@@ -2,26 +2,33 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Copy csproj and restore dependencies
-COPY ATSRecruitSys.Server/ATSRecruitSys.Server.csproj ATSRecruitSys.Server/
-RUN dotnet restore ATSRecruitSys.Server/ATSRecruitSys.Server.csproj
+# Copy csproj and restore dependencies (without React project reference)
+COPY ["ATSRecruitSys.Server/ATSRecruitSys.Server.csproj", "ATSRecruitSys.Server/"]
 
-# Copy everything else and build
-COPY ATSRecruitSys.Server/ ATSRecruitSys.Server/
-WORKDIR /src/ATSRecruitSys.Server
-RUN dotnet build -c Release -o /app/build
+# Remove the React project reference from csproj during build
+RUN sed -i '/<ProjectReference.*atsrecruitsys\.client/d' ATSRecruitSys.Server/ATSRecruitSys.Server.csproj
 
-# Publish the application
+# Restore packages
+RUN dotnet restore "ATSRecruitSys.Server/ATSRecruitSys.Server.csproj"
+
+# Copy the rest of the backend files
+COPY ["ATSRecruitSys.Server/", "ATSRecruitSys.Server/"]
+
+# Build
+WORKDIR "/src/ATSRecruitSys.Server"
+RUN dotnet build "ATSRecruitSys.Server.csproj" -c Release -o /app/build
+
+# Publish
 FROM build AS publish
-RUN dotnet publish -c Release -o /app/publish
+RUN dotnet publish "ATSRecruitSys.Server.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
-# Use runtime image for the final stage
+# Final stage
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 
-# Expose port (Railway will set PORT environment variable)
-EXPOSE 8080
-ENV ASPNETCORE_URLS=http://+:8080
+# Configure to listen on Railway's dynamic port
+ENV ASPNETCORE_URLS=http://+:$PORT
+ENV ASPNETCORE_ENVIRONMENT=Production
 
 ENTRYPOINT ["dotnet", "ATSRecruitSys.Server.dll"]
