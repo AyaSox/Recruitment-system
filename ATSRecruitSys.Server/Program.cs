@@ -11,20 +11,46 @@ using Microsoft.OpenApi.Models;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+// Try to get connection string from environment variable first (for Railway, Heroku, etc.)
+var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL") 
+    ?? builder.Configuration.GetConnectionString("DefaultConnection");
 
-// Configure database provider based on connection string
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
+// Handle empty or missing connection string
+if (string.IsNullOrWhiteSpace(connectionString))
 {
-    if (connectionString.Contains("postgres") || connectionString.Contains("PostgreSQL"))
+    var logger = LoggerFactory.Create(b => b.AddConsole()).CreateLogger("Startup");
+    logger.LogWarning("No database connection string found. Using in-memory database for development.");
+    
+    // Use in-memory database as fallback
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
     {
-        options.UseNpgsql(connectionString);
-    }
-    else
+        options.UseInMemoryDatabase("ATSRecruitSys");
+    });
+}
+else
+{
+    // Parse Railway/Heroku DATABASE_URL format if needed
+    if (connectionString.StartsWith("postgres://") && !connectionString.Contains("?"))
     {
-        options.UseSqlServer(connectionString);
+        // Convert Heroku/Railway postgres:// format to proper connection string
+        var uri = new Uri(connectionString);
+        var userInfo = uri.UserInfo.Split(':');
+        connectionString = $"Host={uri.Host};Port={uri.Port};Database={uri.LocalPath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]};SSL Mode=Require;Trust Server Certificate=true";
     }
-});
+
+    // Configure database provider based on connection string
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    {
+        if (connectionString.Contains("postgres") || connectionString.Contains("PostgreSQL") || connectionString.Contains("Host="))
+        {
+            options.UseNpgsql(connectionString);
+        }
+        else
+        {
+            options.UseSqlServer(connectionString);
+        }
+    });
+}
 
 // Add Identity
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
@@ -175,31 +201,55 @@ app.MapControllers();
 // Initialize database and create default users
 using (var scope = app.Services.CreateScope())
 {
+    var loggerFactory = scope.ServiceProvider.GetRequiredService<ILoggerFactory>();
+    var logger = loggerFactory.CreateLogger<DatabaseSeeder>();
+    
     try
     {
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-        var loggerFactory = scope.ServiceProvider.GetRequiredService<ILoggerFactory>();
-        var logger = loggerFactory.CreateLogger<DatabaseSeeder>();
         
         logger.LogInformation("Starting database initialization...");
         
-        // Apply pending migrations
-        await context.Database.MigrateAsync();
-        logger.LogInformation("Database migrations applied successfully");
+        // Check if we can connect to the database
+        var canConnect = await context.Database.CanConnectAsync();
+        if (!canConnect)
+        {
+            logger.LogWarning("Cannot connect to database. Skipping migrations and seeding.");
+            if (context.Database.IsInMemory())
+            {
+                logger.LogInformation("Using in-memory database. Ensuring created...");
+                await context.Database.EnsureCreatedAsync();
+            }
+        }
+        else
+        {
+            // Apply pending migrations (only for real databases, not in-memory)
+            if (!context.Database.IsInMemory())
+            {
+                logger.LogInformation("Applying database migrations...");
+                await context.Database.MigrateAsync();
+                logger.LogInformation("Database migrations applied successfully");
+            }
+            else
+            {
+                logger.LogInformation("In-memory database detected. Ensuring created...");
+                await context.Database.EnsureCreatedAsync();
+            }
+        }
         
         // Seed database
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
         var seeder = new DatabaseSeeder(context, userManager, roleManager, logger);
         await seeder.SeedDatabaseAsync();
         
-        logger.LogInformation("Database initialization completed");
+        logger.LogInformation("Database initialization completed successfully");
     }
     catch (Exception ex)
     {
-        var loggerFactory = scope.ServiceProvider.GetRequiredService<ILoggerFactory>();
-        var logger = loggerFactory.CreateLogger<DatabaseSeeder>();
-        logger.LogError(ex, "An error occurred while initializing the database");
+        logger.LogError(ex, "An error occurred while initializing the database. Application will start but database may not be available.");
+        logger.LogError("Connection string status: {Status}", 
+            string.IsNullOrEmpty(connectionString) ? "MISSING" : "Present (check format)");
         // Don't throw - let the app start anyway
     }
 }
