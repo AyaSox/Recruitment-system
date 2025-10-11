@@ -2,15 +2,12 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Copy only the server project files
+# Copy the Docker-specific csproj (without React reference) and all source files
+COPY ["ATSRecruitSys.Server/ATSRecruitSys.Server.Docker.csproj", "ATSRecruitSys.Server/ATSRecruitSys.Server.csproj"]
 COPY ["ATSRecruitSys.Server/", "ATSRecruitSys.Server/"]
 
-# Remove the problematic ProjectReference to React app
+# Restore packages using the Docker csproj
 WORKDIR "/src/ATSRecruitSys.Server"
-RUN grep -v "atsrecruitsys.client.esproj" ATSRecruitSys.Server.csproj > temp.csproj && \
-    mv temp.csproj ATSRecruitSys.Server.csproj
-
-# Restore packages
 RUN dotnet restore "ATSRecruitSys.Server.csproj"
 
 # Build
