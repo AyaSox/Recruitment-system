@@ -65,7 +65,9 @@ const JobDetailsPage: React.FC = () => {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const showSuccessMessage = (message: string) => {
-    setSuccessMessage(message);
+    // Strip any leading non-alphanumeric characters that may render oddly (like checkmarks)
+    const clean = message.replace(/^[^A-Za-z0-9(]+/, '').trim();
+    setSuccessMessage(clean);
     setTimeout(() => setSuccessMessage(null), 4000);
   };
 

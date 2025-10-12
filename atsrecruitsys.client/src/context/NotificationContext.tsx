@@ -19,11 +19,14 @@ interface NotificationState {
 export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [state, setState] = useState<NotificationState>({ open: false, message: '', severity: 'info' });
 
+  // Remove any stray leading special characters that may render as question marks on some devices
+  const sanitize = (message: string) => message.replace(/^[^A-Za-z0-9(]+/, '').trim();
+
   const value = useMemo<NotificationContextValue>(() => ({
-    notifySuccess: (message: string) => setState({ open: true, message, severity: 'success' }),
-    notifyError: (message: string) => setState({ open: true, message, severity: 'error' }),
-    notifyInfo: (message: string) => setState({ open: true, message, severity: 'info' }),
-    notifyWarning: (message: string) => setState({ open: true, message, severity: 'warning' }),
+    notifySuccess: (message: string) => setState({ open: true, message: sanitize(message), severity: 'success' }),
+    notifyError: (message: string) => setState({ open: true, message: sanitize(message), severity: 'error' }),
+    notifyInfo: (message: string) => setState({ open: true, message: sanitize(message), severity: 'info' }),
+    notifyWarning: (message: string) => setState({ open: true, message: sanitize(message), severity: 'warning' }),
   }), []);
 
   return (
