@@ -247,22 +247,31 @@ using (var scope = app.Services.CreateScope())
         }
         else
         {
-            // Create database schema (database-agnostic - works for both SQL Server and PostgreSQL)
+            // Apply database migrations (proper way for production)
             if (!context.Database.IsInMemory())
             {
-                logger.LogInformation("Ensuring database schema exists (database-agnostic)...");
+                logger.LogInformation("Applying database migrations...");
                 
-                // EnsureCreated works with both SQL Server and PostgreSQL
-                // It creates the schema based on the current DbContext model
-                var created = await context.Database.EnsureCreatedAsync();
+                // Use migrations for proper database schema management
+                var migrated = await TryMigrateWithRetryAsync(context, logger, maxAttempts: 5, delaySeconds: 5);
                 
-                if (created)
+                if (migrated)
                 {
-                    logger.LogInformation("Database schema created successfully");
+                    logger.LogInformation("Database migrations applied successfully");
                 }
                 else
                 {
-                    logger.LogInformation("Database schema already exists");
+                    logger.LogWarning("Database migrations failed. Attempting fallback to EnsureCreated...");
+                    try
+                    {
+                        await context.Database.EnsureCreatedAsync();
+                        logger.LogInformation("Database schema created using EnsureCreated fallback");
+                    }
+                    catch (Exception fallbackEx)
+                    {
+                        logger.LogError(fallbackEx, "Both migration and EnsureCreated failed");
+                        throw;
+                    }
                 }
             }
             else
