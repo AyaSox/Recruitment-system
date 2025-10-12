@@ -132,17 +132,20 @@ const LoginPage: React.FC = () => {
       </Box>
 
       <Box sx={{ mt: 8, textAlign: 'center' }}>
-        <Typography variant="body2" color="text.secondary">
+        <Typography variant="body2" color="text.secondary" fontWeight="bold">
           Test Accounts:
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          Admin: admin@atsrecruit.com / Admin@123
+          Admin: admin@atsrecruitsys.com / Admin123!
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          Recruiter: thabo.nkosi@atsrecruit.com / Recruit@123
+          Recruiter: recruiter@test.com / Test123!
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          Applicant: sipho.ndlovu@example.com / Applicant@123
+          Hiring Manager: hiringmanager@test.com / Test123!
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          Applicant: applicant@test.com / Test123!
         </Typography>
       </Box>
     </Container>
