@@ -60,7 +60,7 @@ const SettingsPage: React.FC = () => {
   const fetchProfile = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/auth/profile');
+      const response = await api.get('/api/auth/profile');
       if (response.data.isSuccess) {
         setProfile(response.data.data);
         setProfileForm({
@@ -94,7 +94,7 @@ const SettingsPage: React.FC = () => {
     }
 
     try {
-      const response = await api.put('/auth/profile', profileForm);
+      const response = await api.put('/api/auth/profile', profileForm);
 
       if (response.data.isSuccess) {
         setSuccess('Profile updated successfully');
@@ -130,7 +130,7 @@ const SettingsPage: React.FC = () => {
     }
 
     try {
-      const response = await api.post('/auth/change-password', {
+      const response = await api.post('/api/auth/change-password', {
         currentPassword: passwordForm.currentPassword,
         newPassword: passwordForm.newPassword,
       });
