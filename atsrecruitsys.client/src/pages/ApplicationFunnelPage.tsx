@@ -18,8 +18,6 @@ import {
   DialogContent,
   DialogActions,
   TextField,
-  Snackbar,
-  Alert as MuiAlert,
 } from '@mui/material';
 import {
   MoreVert as MoreVertIcon,
@@ -33,6 +31,7 @@ import Layout from '../components/Layout';
 import { ApplicationService } from '../services';
 import { Application } from '../types';
 import { format } from 'date-fns';
+import { useNotification } from '../context/NotificationContext';
 
 // Application stages/columns for the funnel - matching actual database statuses
 const APPLICATION_STAGES = [
@@ -236,8 +235,7 @@ const ApplicationFunnelPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [draggedApplication, setDraggedApplication] = useState<Application | null>(null);
   
-  // Success message state
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const { notifySuccess } = useNotification();
 
   useEffect(() => {
     fetchApplications();
@@ -293,10 +291,8 @@ const ApplicationFunnelPage: React.FC = () => {
         `Moved to ${targetStage.title} via drag and drop`
       );
 
-      // Show success message
-      setSuccessMessage(
-        `? ${draggedApplication.applicantName} moved to ${targetStage.title} successfully!`
-      );
+      // Show success message (handled by NotificationProvider)
+      notifySuccess(`${draggedApplication.applicantName} moved to ${targetStage.title} successfully!`);
 
       // Refresh applications
       await fetchApplications();
@@ -325,11 +321,9 @@ const ApplicationFunnelPage: React.FC = () => {
       const targetStage = APPLICATION_STAGES.find(stage => stage.status === status);
       
       if (application && targetStage) {
-        setSuccessMessage(
-          `? ${application.applicantName} status updated to ${targetStage.title} successfully!`
-        );
+        notifySuccess(`${application.applicantName} status updated to ${targetStage.title} successfully!`);
       } else {
-        setSuccessMessage('? Application status updated successfully!');
+        notifySuccess('Application status updated successfully!');
       }
       
       await fetchApplications();
@@ -366,11 +360,7 @@ const ApplicationFunnelPage: React.FC = () => {
         </Alert>
       )}
 
-      {successMessage && (
-        <Alert severity="success" sx={{ mb: 3 }} onClose={() => setSuccessMessage(null)}>
-          {successMessage}
-        </Alert>
-      )}
+      {/* Success shown only in bottom Snackbar for consistency */}
 
       <Box mb={2}>
         <Typography variant="h5" component="h1" gutterBottom fontWeight="bold">
@@ -480,29 +470,7 @@ const ApplicationFunnelPage: React.FC = () => {
         </Box>
       </Paper>
 
-      {/* Success Message Snackbar */}
-      <Snackbar
-        open={!!successMessage}
-        autoHideDuration={4000}
-        onClose={() => setSuccessMessage(null)}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-      >
-        <MuiAlert
-          elevation={6}
-          variant="filled"
-          severity="success"
-          onClose={() => setSuccessMessage(null)}
-          sx={{ 
-            minWidth: '300px',
-            fontSize: '1rem',
-            '& .MuiAlert-message': {
-              fontSize: '0.95rem'
-            }
-          }}
-        >
-          {successMessage}
-        </MuiAlert>
-      </Snackbar>
+      {/* Success notifications handled by NotificationProvider */}
     </Layout>
   );
 };

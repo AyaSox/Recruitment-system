@@ -23,8 +23,6 @@ import {
   LinearProgress,
   Fade,
   Paper,
-  Snackbar,
-  Alert as MuiAlert,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import WorkIcon from '@mui/icons-material/Work';
@@ -36,6 +34,7 @@ import JobCard from '../components/JobCard';
 import MobileJobList from '../components/MobileJobList';
 import Layout from '../components/Layout';
 import { LocationSelect, DepartmentSelect } from '../components/LocationDepartmentSelect';
+import { useNotification } from '../context/NotificationContext';
 
 // Modern Job Card Skeleton
 const JobCardSkeleton: React.FC = () => {
@@ -116,13 +115,7 @@ const JobsPage: React.FC = () => {
   const [publishDialogOpen, setPublishDialogOpen] = useState(false);
   const [jobToToggle, setJobToToggle] = useState<{ id: number; isPublished: boolean } | null>(null);
 
-  // Success message state
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
-
-  const showSuccessMessage = (message: string) => {
-    setSuccessMessage(message);
-    setTimeout(() => setSuccessMessage(null), 4000);
-  };
+  const { notifySuccess } = useNotification();
 
   // Fix: Use roles array instead of role property
   const isRecruiterOrAdmin = user?.roles?.includes('Recruiter') || user?.roles?.includes('Admin');
@@ -214,7 +207,7 @@ const JobsPage: React.FC = () => {
 
       // Show success message
       const action = isPublished ? 'published' : 'unpublished';
-      showSuccessMessage(`? Job ${action} successfully!`);
+      notifySuccess(`Job ${action} successfully!`);
       
       setError(null);
     } catch (err: any) {
@@ -239,7 +232,7 @@ const JobsPage: React.FC = () => {
       setTotalCount(prev => prev - 1);
       
       // Show success message
-      showSuccessMessage('? Job deleted successfully!');
+      notifySuccess('Job deleted successfully!');
       
       setError(null);
     } catch (err: any) {
@@ -522,29 +515,7 @@ const JobsPage: React.FC = () => {
           </DialogActions>
         </Dialog>
 
-        {/* Success Message Snackbar */}
-        <Snackbar
-          open={!!successMessage}
-          autoHideDuration={4000}
-          onClose={() => setSuccessMessage(null)}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        >
-          <MuiAlert
-            elevation={6}
-            variant="filled"
-            severity="success"
-            onClose={() => setSuccessMessage(null)}
-            sx={{ 
-              minWidth: '300px',
-              fontSize: '1rem',
-              '& .MuiAlert-message': {
-                fontSize: '0.95rem'
-              }
-            }}
-          >
-            {successMessage}
-          </MuiAlert>
-        </Snackbar>
+        {/* Success notifications handled by NotificationProvider */}
       </Container>
     </Layout>
   );

@@ -6,6 +6,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { AuthProvider } from './context/AuthContext';
 import { LoadingProvider } from './context/LoadingContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { NotificationProvider } from './context/NotificationContext';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { ProtectedRoute } from './hooks/useProtectedRoute';
 
@@ -50,6 +51,7 @@ function App() {
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <LoadingProvider>
             <AuthProvider>
+              <NotificationProvider>
               <Router>
                 <Suspense fallback={<LoadingFallback />}>
                   <Routes>
@@ -147,6 +149,7 @@ function App() {
                   </Routes>
                 </Suspense>
               </Router>
+              </NotificationProvider>
             </AuthProvider>
           </LoadingProvider>
         </LocalizationProvider>

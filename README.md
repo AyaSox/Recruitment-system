@@ -15,6 +15,7 @@ A full-stack Applicant Tracking System built with .NET 8 (Web API) and React (Ty
 - Dashboard with basic analytics and charts
 - South African context (major city locations, departments, ZAR currency)
 - Audit logging and basic exports
+- Built-in AI Chatbot widget for quick help and navigation
 
 ## Project Structure
 
@@ -65,6 +66,17 @@ npm install
 npm run dev
 ```
 App: http://localhost:5173
+
+## Chatbot Widget
+
+The frontend includes a lightweight in-app Chatbot to guide users with quick tips and links to common actions.
+
+- Component: `atsrecruitsys.client/src/components/ChatWidget.tsx`
+- Mounted via the shared `Layout` component so it is available across pages
+- Client-only, no backend dependency
+- Easy to customize canned responses
+
+To disable or customize, edit `ChatWidget.tsx` or remove it from `Layout`.
 
 ## Screenshots
 

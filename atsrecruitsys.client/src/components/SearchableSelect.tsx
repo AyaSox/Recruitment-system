@@ -6,7 +6,6 @@ import {
   Chip,
   Typography,
   AutocompleteRenderOptionState,
-  AutocompleteOwnerState,
   AutocompleteRenderGetTagProps,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
@@ -135,8 +134,7 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
   const renderOption = (
     props: React.HTMLAttributes<HTMLLIElement>,
     option: Option,
-    state: AutocompleteRenderOptionState,
-    ownerState: AutocompleteOwnerState<Option, boolean, boolean, boolean>
+    state: AutocompleteRenderOptionState
   ) => (
     <Box component="li" {...props} key={option.value}>
       <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
@@ -161,8 +159,7 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
 
   const renderTags = (
     tagValue: Option[], 
-    getTagProps: AutocompleteRenderGetTagProps,
-    ownerState: AutocompleteOwnerState<Option, boolean, boolean, boolean>
+    getTagProps: AutocompleteRenderGetTagProps
   ) =>
     tagValue.map((option, index) => (
       <Chip

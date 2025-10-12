@@ -12,12 +12,15 @@ import {
   Card,
   CardContent,
   Chip,
+  Snackbar,
+  Alert as MuiAlert,
 } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import LockIcon from '@mui/icons-material/Lock';
 import EditIcon from '@mui/icons-material/Edit';
 import Layout from '../components/Layout';
 import { useAuth } from '../context/AuthContext';
+import { useNotification } from '../context/NotificationContext';
 import api from '../services/api';
 
 interface UserProfile {
@@ -40,6 +43,7 @@ const SettingsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const { notifySuccess } = useNotification();
   const [isEditingProfile, setIsEditingProfile] = useState(false);
 
   const [profileForm, setProfileForm] = useState({
@@ -97,7 +101,7 @@ const SettingsPage: React.FC = () => {
       const response = await api.put('/api/auth/profile', profileForm);
 
       if (response.data.isSuccess) {
-        setSuccess('Profile updated successfully');
+        notifySuccess('Profile updated successfully');
         setIsEditingProfile(false);
         await fetchProfile();
       }
@@ -136,7 +140,7 @@ const SettingsPage: React.FC = () => {
       });
 
       if (response.data.isSuccess) {
-        setSuccess('Password changed successfully');
+        notifySuccess('Password changed successfully');
         setPasswordForm({
           currentPassword: '',
           newPassword: '',
@@ -186,11 +190,7 @@ const SettingsPage: React.FC = () => {
           </Alert>
         )}
 
-        {success && (
-          <Alert severity="success" sx={{ mb: 2 }} onClose={() => setSuccess(null)}>
-            {success}
-          </Alert>
-        )}
+        {/* Success shown only in bottom Snackbar for consistency */}
 
         {/* Profile Information */}
         <Card sx={{ mb: 3 }}>
@@ -357,6 +357,7 @@ const SettingsPage: React.FC = () => {
           </CardContent>
         </Card>
       </Container>
+      {/* Success notifications handled by NotificationProvider */}
     </Layout>
   );
 };
