@@ -4,7 +4,6 @@ import {
   JobSummary,
   CreateJobRequest,
   UpdateJobRequest,
-  JobApprovalRequest,
   PaginatedJobResponse,
   JobFilters,
 } from '../types/job';
@@ -121,9 +120,9 @@ const JobService = {
   },
 
   // Update an existing job
-  updateJob: async (data: UpdateJobRequest): Promise<Job> => {
-    const response = await api.put<Job>(`/api/jobs/${data.id}`, data);
-    return response.data;
+  updateJob: async (id: number, data: UpdateJobRequest): Promise<Job> => {
+    const response = await api.put<{ success: boolean; message: string; data: Job }>(`/api/jobs/${id}`, data);
+    return response.data.data;
   },
 
   // Publish a job (set isPublished to true)
@@ -154,9 +153,7 @@ const JobService = {
         title: currentJob.title,
         description: currentJob.description,
         location: currentJob.location,
-        customLocation: currentJob.customLocation,
         department: currentJob.department,
-        customDepartment: currentJob.customDepartment,
         closingDate: currentJob.closingDate,
         isPublished: isPublished,
         employmentType: currentJob.employmentType,
@@ -166,21 +163,14 @@ const JobService = {
         salaryRangeMin: currentJob.salaryRangeMin,
         salaryRangeMax: currentJob.salaryRangeMax,
         currency: currentJob.currency,
-        skills: currentJob.skills,
       };
 
-      const response = await api.put<Job>(`/api/jobs/${id}`, updateData);
-      return response.data;
+      const response = await api.put<{ success: boolean; message: string; data: Job }>(`/api/jobs/${id}`, updateData);
+      return response.data.data;
     } catch (error) {
       console.error('Error updating job publish status:', error);
       throw error;
     }
-  },
-
-  // Approve or reject a job (Admin only)
-  approveJob: async (data: JobApprovalRequest): Promise<Job> => {
-    const response = await api.put<Job>(`/api/jobs/${data.jobId}/approve`, data);
-    return response.data;
   },
 
   // Helper method to get formatted salary range

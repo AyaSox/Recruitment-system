@@ -6,8 +6,6 @@ import {
   Link as MuiLink, 
   Paper, 
   Alert, 
-  Snackbar, 
-  Alert as MuiAlert,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -21,20 +19,16 @@ import JobForm from '../components/JobForm';
 import { JobService } from '../services';
 import { CreateJobRequest } from '../types';
 import { useAuth } from '../context/AuthContext';
+import { useNotification } from '../context/NotificationContext';
 import ProtectedRoute from '../hooks/useProtectedRoute';
 
 const CreateJobPage: React.FC = () => {
-  const navigate = useNavigate();
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [approvalDialogOpen, setApprovalDialogOpen] = useState(false);
-  const [createdJobId, setCreatedJobId] = useState<number | null>(null);
-
-  const showSuccessMessage = (message: string) => {
-    setSuccessMessage(message);
-    setTimeout(() => setSuccessMessage(null), 3000);
-  };
+const navigate = useNavigate();
+const { notifySuccess } = useNotification();
+const [submitting, setSubmitting] = useState(false);
+const [error, setError] = useState<string | null>(null);
+const [approvalDialogOpen, setApprovalDialogOpen] = useState(false);
+const [createdJobId, setCreatedJobId] = useState<number | null>(null);
 
   const handleSubmit = async (values: CreateJobRequest) => {
     try {
@@ -51,11 +45,22 @@ const CreateJobPage: React.FC = () => {
     }
   };
 
-  const handleApprovalDialogClose = () => {
+  const handleViewJobDetails = () => {
     setApprovalDialogOpen(false);
     if (createdJobId) {
       navigate(`/jobs/${createdJobId}`);
     }
+  };
+
+  const handleGoToJobs = () => {
+    setApprovalDialogOpen(false);
+    notifySuccess('Job created successfully! Awaiting admin approval.');
+    navigate('/jobs');
+  };
+
+  const handleCloseDialog = () => {
+    setApprovalDialogOpen(false);
+    notifySuccess('Job created successfully! Awaiting admin approval.');
   };
 
   return (
@@ -97,7 +102,7 @@ const CreateJobPage: React.FC = () => {
         {/* Admin Approval Confirmation Dialog */}
         <Dialog 
           open={approvalDialogOpen} 
-          onClose={handleApprovalDialogClose}
+          onClose={handleCloseDialog}
           maxWidth="sm" 
           fullWidth
         >
@@ -110,7 +115,7 @@ const CreateJobPage: React.FC = () => {
           <DialogContent>
             <Box textAlign="center" px={2}>
               <Typography variant="h6" gutterBottom color="primary">
-                {'\u23F3'} Awaiting Admin Approval
+                Awaiting Admin Approval
               </Typography>
               <Typography variant="body1" paragraph>
                 Your job posting has been created and submitted to administrators for review.
@@ -119,10 +124,10 @@ const CreateJobPage: React.FC = () => {
                 <strong>Next Steps:</strong>
               </Typography>
               <Typography variant="body2" color="text.secondary" paragraph sx={{ textAlign: 'left', ml: 2 }}>
-                {'\u2705'} Admin will review your job posting<br/>
-                {'\u2705'} Once approved, it will be available for publishing<br/>
-                {'\u2705'} You will be notified when approval is complete<br/>
-                {'\u2705'} Only admins can publish/unpublish jobs
+                • Admin will review your job posting<br/>
+                • Once approved, it will be available for publishing<br/>
+                • You will be notified when approval is complete<br/>
+                • Only admins can publish/unpublish jobs
               </Typography>
               <Alert severity="info" sx={{ mt: 2, textAlign: 'left' }}>
                 <Typography variant="body2">
@@ -131,40 +136,31 @@ const CreateJobPage: React.FC = () => {
               </Alert>
             </Box>
           </DialogContent>
-          <DialogActions sx={{ justifyContent: 'center', pb: 3 }}>
+          <DialogActions sx={{ justifyContent: 'space-between', px: 3, pb: 3 }}>
             <Button 
-              variant="contained" 
-              onClick={handleApprovalDialogClose}
+              onClick={handleCloseDialog}
               size="large"
             >
-              View Job Details
+              Close
             </Button>
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <Button 
+                variant="outlined"
+                onClick={handleGoToJobs}
+                size="large"
+              >
+                Go to Jobs
+              </Button>
+              <Button 
+                variant="contained" 
+                onClick={handleViewJobDetails}
+                size="large"
+              >
+                View Details
+              </Button>
+            </Box>
           </DialogActions>
         </Dialog>
-
-        {/* Success Message Snackbar */}
-        <Snackbar
-          open={!!successMessage}
-          autoHideDuration={3000}
-          onClose={() => setSuccessMessage(null)}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        >
-          <MuiAlert
-            elevation={6}
-            variant="filled"
-            severity="success"
-            onClose={() => setSuccessMessage(null)}
-            sx={{ 
-              minWidth: '300px',
-              fontSize: '1rem',
-              '& .MuiAlert-message': {
-                fontSize: '0.95rem'
-              }
-            }}
-          >
-            {successMessage}
-          </MuiAlert>
-        </Snackbar>
       </Layout>
     </ProtectedRoute>
   );

@@ -57,9 +57,6 @@ const JobDetailsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Delete confirmation dialog
-  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-
   // Toggle publish dialog
   const [openPublishDialog, setOpenPublishDialog] = useState(false);
   const [publishStatus, setPublishStatus] = useState(false);
@@ -110,25 +107,6 @@ const JobDetailsPage: React.FC = () => {
 
   const handleEdit = () => {
     navigate(`/jobs/edit/${jobId}`);
-  };
-
-  const handleOpenDeleteDialog = () => {
-    setOpenDeleteDialog(true);
-  };
-
-  const handleCloseDeleteDialog = () => {
-    setOpenDeleteDialog(false);
-  };
-
-  const handleDelete = async () => {
-    try {
-      await JobService.deleteJob(jobId);
-      showSuccessMessage('? Job deleted successfully!');
-      setTimeout(() => navigate('/jobs'), 1000);
-    } catch (err: any) {
-      setError(err.message || 'Failed to delete job');
-    }
-    handleCloseDeleteDialog();
   };
 
   const handleOpenPublishDialog = (status: boolean) => {
@@ -399,14 +377,6 @@ const JobDetailsPage: React.FC = () => {
                     >
                       {job.isPublished ? 'Unpublish Job' : 'Publish Job'}
                     </Button>
-                    <Button
-                      variant="outlined"
-                      color="error"
-                      fullWidth
-                      onClick={handleOpenDeleteDialog}
-                    >
-                      Delete Job
-                    </Button>
                   </>
                 ) : (
                   <Button
@@ -433,28 +403,6 @@ const JobDetailsPage: React.FC = () => {
           </Card>
         </Grid>
       </Grid>
-
-      {/* Delete Confirmation Dialog */}
-      <Dialog open={openDeleteDialog} onClose={handleCloseDeleteDialog}>
-        <DialogTitle>Delete Job</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Are you sure you want to delete this job? This action cannot be undone.
-            {job.applicationCount > 0 && (
-              <Typography color="error" sx={{ mt: 2 }}>
-                Warning: This job has {job.applicationCount} applications. Deleting it will affect
-                these applications.
-              </Typography>
-            )}
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDeleteDialog}>Cancel</Button>
-          <Button onClick={handleDelete} color="error">
-            Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
 
       {/* Publish/Unpublish Dialog */}
       <Dialog open={openPublishDialog} onClose={handleClosePublishDialog}>
