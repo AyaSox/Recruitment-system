@@ -38,10 +38,14 @@ namespace ATSRecruitSys.Server.Services
                     return;
                 }
 
-                // Apply pending migrations (skip for in-memory database)
+                // Ensure database schema exists (database-agnostic)
                 if (!_context.Database.IsInMemory())
                 {
-                    await _context.Database.MigrateAsync();
+                    var created = await _context.Database.EnsureCreatedAsync();
+                    if (created)
+                    {
+                        _logger.LogInformation("Database schema created by seeder");
+                    }
                 }
 
                 // Seed roles

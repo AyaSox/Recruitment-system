@@ -247,18 +247,22 @@ using (var scope = app.Services.CreateScope())
         }
         else
         {
-            // Apply pending migrations (only for real databases, not in-memory)
+            // Create database schema (database-agnostic - works for both SQL Server and PostgreSQL)
             if (!context.Database.IsInMemory())
             {
-                logger.LogInformation("Applying database migrations (with retry)...");
-                var migrated = await TryMigrateWithRetryAsync(context, logger, maxAttempts: 5, delaySeconds: 5);
-                if (migrated)
+                logger.LogInformation("Ensuring database schema exists (database-agnostic)...");
+                
+                // EnsureCreated works with both SQL Server and PostgreSQL
+                // It creates the schema based on the current DbContext model
+                var created = await context.Database.EnsureCreatedAsync();
+                
+                if (created)
                 {
-                    logger.LogInformation("Database migrations applied successfully");
+                    logger.LogInformation("Database schema created successfully");
                 }
                 else
                 {
-                    logger.LogWarning("Database migrations could not be applied after retries.");
+                    logger.LogInformation("Database schema already exists");
                 }
             }
             else
