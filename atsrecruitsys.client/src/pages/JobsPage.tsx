@@ -33,6 +33,7 @@ import { JobSummary, PaginatedJobResponse } from '../types/job';
 import JobCard from '../components/JobCard';
 import MobileJobList from '../components/MobileJobList';
 import Layout from '../components/Layout';
+import { LocationSelect, DepartmentSelect } from '../components/LocationDepartmentSelect';
 
 // Modern Job Card Skeleton
 const JobCardSkeleton: React.FC = () => {
@@ -340,8 +341,11 @@ const JobsPage: React.FC = () => {
           </Alert>
         )}
 
-        {/* Simple Search Filters */}
-        <Box sx={{ mb: 3 }}>
+        {/* Enhanced Search Filters with Searchable Dropdowns */}
+        <Paper elevation={1} sx={{ p: 3, mb: 3, backgroundColor: 'background.paper' }}>
+          <Typography variant="h6" gutterBottom sx={{ mb: 2 }}>
+            Search & Filter Jobs
+          </Typography>
           <Grid container spacing={2}>
             <Grid item xs={12} md={4}>
               <TextField
@@ -349,45 +353,29 @@ const JobsPage: React.FC = () => {
                 label="Search Keywords"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Job title, keywords..."
+                placeholder="Job title, skills, company..."
                 disabled={loading}
                 InputProps={{
                   startAdornment: <SearchIcon sx={{ mr: 1, color: 'text.secondary' }} />,
                 }}
+                helperText="Search by job title, skills, or keywords"
               />
             </Grid>
             <Grid item xs={12} md={3}>
-              <TextField
-                fullWidth
-                select
-                label="Location"
+              <LocationSelect
                 value={locationFilter}
-                onChange={(e) => setLocationFilter(e.target.value)}
+                onChange={(value) => setLocationFilter(Array.isArray(value) ? value[0] || '' : value)}
+                label="Filter by Location"
                 disabled={loading}
-              >
-                <MenuItem value="">All Locations</MenuItem>
-                <MenuItem value="Johannesburg, Gauteng">Johannesburg, Gauteng</MenuItem>
-                <MenuItem value="Cape Town, Western Cape">Cape Town, Western Cape</MenuItem>
-                <MenuItem value="Durban, KwaZulu-Natal">Durban, KwaZulu-Natal</MenuItem>
-                <MenuItem value="Pretoria, Gauteng">Pretoria, Gauteng</MenuItem>
-              </TextField>
+              />
             </Grid>
             <Grid item xs={12} md={3}>
-              <TextField
-                fullWidth
-                select
-                label="Department"
+              <DepartmentSelect
                 value={departmentFilter}
-                onChange={(e) => setDepartmentFilter(e.target.value)}
+                onChange={(value) => setDepartmentFilter(Array.isArray(value) ? value[0] || '' : value)}
+                label="Filter by Department"
                 disabled={loading}
-              >
-                <MenuItem value="">All Departments</MenuItem>
-                <MenuItem value="IT">IT</MenuItem>
-                <MenuItem value="Human Capital">Human Capital</MenuItem>
-                <MenuItem value="Operations">Operations</MenuItem>
-                <MenuItem value="Sales & Marketing">Sales & Marketing</MenuItem>
-                <MenuItem value="Finance">Finance</MenuItem>
-              </TextField>
+              />
             </Grid>
             <Grid item xs={12} md={2}>
               <Button
@@ -397,11 +385,11 @@ const JobsPage: React.FC = () => {
                 sx={{ height: '56px' }}
                 disabled={loading}
               >
-                Clear Filters
+                Clear All
               </Button>
             </Grid>
           </Grid>
-        </Box>
+        </Paper>
 
         {/* Loading State with Skeleton */}
         {loading ? (

@@ -26,6 +26,7 @@ import {
   EMPLOYMENT_TYPES,
   EXPERIENCE_LEVELS,
 } from '../types/job';
+import { LocationSelect, DepartmentSelect } from './LocationDepartmentSelect';
 
 interface JobFormProps {
   job?: Job;
@@ -163,30 +164,22 @@ const JobForm: React.FC<JobFormProps> = ({ job, onSubmit, onCancel, loading = fa
             </Grid>
 
             <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                id="location"
-                name="location"
-                label="Location"
+              <LocationSelect
                 value={formik.values.location}
-                onChange={formik.handleChange}
+                onChange={(value) => formik.setFieldValue('location', value)}
+                required
                 error={formik.touched.location && Boolean(formik.errors.location)}
-                helperText={formik.touched.location && formik.errors.location}
-                placeholder="e.g., Cape Town, Johannesburg, Remote"
+                errorMessage={formik.touched.location && formik.errors.location ? String(formik.errors.location) : undefined}
               />
             </Grid>
 
             <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                id="department"
-                name="department"
-                label="Department"
+              <DepartmentSelect
                 value={formik.values.department}
-                onChange={formik.handleChange}
+                onChange={(value) => formik.setFieldValue('department', value)}
+                required
                 error={formik.touched.department && Boolean(formik.errors.department)}
-                helperText={formik.touched.department && formik.errors.department}
-                placeholder="e.g., Information Technology, Human Resources"
+                errorMessage={formik.touched.department && formik.errors.department ? String(formik.errors.department) : undefined}
               />
             </Grid>
 
