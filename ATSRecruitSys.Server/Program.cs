@@ -29,14 +29,8 @@ if (string.IsNullOrWhiteSpace(connectionString))
 }
 else
 {
-    // Parse Railway/Heroku DATABASE_URL format if needed
-    if (connectionString.StartsWith("postgres://") && !connectionString.Contains("?"))
-    {
-        // Convert Heroku/Railway postgres:// format to proper connection string
-        var uri = new Uri(connectionString);
-        var userInfo = uri.UserInfo.Split(':');
-        connectionString = $"Host={uri.Host};Port={uri.Port};Database={uri.LocalPath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]};SSL Mode=Require;Trust Server Certificate=true";
-    }
+    // Parse Railway/Heroku PostgreSQL URL format (postgres:// or postgresql://) if needed
+    connectionString = ConvertPostgresUrlToNpgsql(connectionString);
 
     // Configure database provider based on connection string
     builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -255,3 +249,62 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
+
+// Helper: Convert postgres:// or postgresql:// URL to an Npgsql connection string
+static string ConvertPostgresUrlToNpgsql(string raw)
+{
+    if (string.IsNullOrWhiteSpace(raw))
+        return raw;
+
+    var trimmed = raw.Trim().Trim('"');
+
+    // Detect URL schemes used by Railway/Heroku
+    if (!(trimmed.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase) ||
+          trimmed.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase)))
+    {
+        return trimmed; // Already a regular connection string
+    }
+
+    if (!Uri.TryCreate(trimmed, UriKind.Absolute, out var uri))
+        return trimmed; // Fallback to original if parsing fails
+
+    // Extract credentials safely (may be URL-encoded)
+    var userInfoParts = uri.UserInfo.Split(':', 2);
+    var username = userInfoParts.Length > 0 ? Uri.UnescapeDataString(userInfoParts[0]) : string.Empty;
+    var password = userInfoParts.Length > 1 ? Uri.UnescapeDataString(userInfoParts[1]) : string.Empty;
+
+    var host = uri.Host;
+    var port = uri.Port > 0 ? uri.Port : 5432; // default
+    var database = uri.AbsolutePath.TrimStart('/');
+
+    // Defaults for cloud providers
+    var sslMode = "Require"; // secure by default
+    var trustServerCert = "true";
+
+    // Parse query string for overrides (e.g., ?sslmode=verify-full)
+    var query = uri.Query.TrimStart('?');
+    if (!string.IsNullOrEmpty(query))
+    {
+        foreach (var part in query.Split('&', StringSplitOptions.RemoveEmptyEntries))
+        {
+            var kv = part.Split('=', 2);
+            var key = Uri.UnescapeDataString(kv[0]).Trim();
+            var value = kv.Length > 1 ? Uri.UnescapeDataString(kv[1]).Trim() : string.Empty;
+
+            if (key.Equals("sslmode", StringComparison.OrdinalIgnoreCase))
+            {
+                sslMode = value; // pass-through supported values: disable, allow, prefer, require, verify-ca, verify-full
+            }
+            else if (key.Equals("trust_server_certificate", StringComparison.OrdinalIgnoreCase) ||
+                     key.Equals("Trust Server Certificate", StringComparison.OrdinalIgnoreCase))
+            {
+                trustServerCert = value;
+            }
+        }
+    }
+
+    var sb = new StringBuilder();
+    sb.Append($"Host={host};Port={port};Database={database};Username={username};Password={password};");
+    sb.Append($"SSL Mode={sslMode};Trust Server Certificate={trustServerCert}");
+    return sb.ToString();
+}

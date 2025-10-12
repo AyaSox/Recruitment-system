@@ -30,8 +30,19 @@ namespace ATSRecruitSys.Server.Services
             {
                 _logger.LogInformation("Starting database seeding...");
 
-                // Apply pending migrations
-                await _context.Database.MigrateAsync();
+                // Check if database is accessible before attempting migrations
+                var canConnect = await _context.Database.CanConnectAsync();
+                if (!canConnect)
+                {
+                    _logger.LogWarning("Cannot connect to database. Skipping seeding.");
+                    return;
+                }
+
+                // Apply pending migrations (skip for in-memory database)
+                if (!_context.Database.IsInMemory())
+                {
+                    await _context.Database.MigrateAsync();
+                }
 
                 // Seed roles
                 await SeedRolesAsync();
