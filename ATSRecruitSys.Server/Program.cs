@@ -14,11 +14,31 @@ var builder = WebApplication.CreateBuilder(args);
 // Resolve connection string robustly for Railway/containers
 var (connectionString, source) = ResolveConnectionString(builder.Configuration);
 
+// Enhanced logging for database connection debugging
+var startupLogger = LoggerFactory.Create(b => b.AddConsole()).CreateLogger("Startup");
+
+// Log all relevant environment variables for debugging
+startupLogger.LogInformation("=== DATABASE CONNECTION DEBUGGING ===");
+startupLogger.LogInformation("Environment: {Environment}", builder.Environment.EnvironmentName);
+startupLogger.LogInformation("DATABASE_URL: {Value}", 
+    string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DATABASE_URL")) ? "NOT SET" : "SET");
+startupLogger.LogInformation("DATABASE_PUBLIC_URL: {Value}", 
+    string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DATABASE_PUBLIC_URL")) ? "NOT SET" : "SET");
+startupLogger.LogInformation("DATABASE_PRIVATE_URL: {Value}", 
+    string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DATABASE_PRIVATE_URL")) ? "NOT SET" : "SET");
+startupLogger.LogInformation("PGHOST: {Value}", Environment.GetEnvironmentVariable("PGHOST") ?? "NOT SET");
+startupLogger.LogInformation("PGDATABASE: {Value}", Environment.GetEnvironmentVariable("PGDATABASE") ?? "NOT SET");
+startupLogger.LogInformation("PGUSER: {Value}", Environment.GetEnvironmentVariable("PGUSER") ?? "NOT SET");
+startupLogger.LogInformation("Connection resolved from: {Source}", source);
+startupLogger.LogInformation("======================================");
+
 // Handle empty or missing connection string
 if (string.IsNullOrWhiteSpace(connectionString))
 {
-    var logger = LoggerFactory.Create(b => b.AddConsole()).CreateLogger("Startup");
-    logger.LogWarning("No database connection string found. Using in-memory database for development.");
+    startupLogger.LogWarning("No database connection string found. Using in-memory database for development.");
+    startupLogger.LogWarning("To fix this on Railway:");
+    startupLogger.LogWarning("1. Set DATABASE_URL to the same value as DATABASE_PUBLIC_URL");
+    startupLogger.LogWarning("2. Or ensure PG* variables are properly set");
     
     // Use in-memory database as fallback
     builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -338,17 +358,22 @@ static string ConvertPostgresUrlToNpgsql(string raw)
 // Resolve connection string from multiple sources with sane fallbacks
 static (string Value, string Source) ResolveConnectionString(IConfiguration config)
 {
-    // 1) Railway/Heroku standard env vars
+    // 1) Railway/Heroku standard env vars - prioritize non-empty values
     var raw = Environment.GetEnvironmentVariable("DATABASE_URL");
-    if (!string.IsNullOrWhiteSpace(raw))
+    if (!string.IsNullOrWhiteSpace(raw) && !raw.Equals("<empty string>", StringComparison.OrdinalIgnoreCase))
         return (raw, "env:DATABASE_URL");
 
-    // 2) Public proxy (Railway)
+    // 2) Public proxy (Railway) - this is often the working one
     raw = Environment.GetEnvironmentVariable("DATABASE_PUBLIC_URL");
-    if (!string.IsNullOrWhiteSpace(raw))
+    if (!string.IsNullOrWhiteSpace(raw) && !raw.Equals("<empty string>", StringComparison.OrdinalIgnoreCase))
         return (raw, "env:DATABASE_PUBLIC_URL");
 
-    // 3) PG* env vars
+    // 3) Railway internal database URL (often the most reliable)
+    raw = Environment.GetEnvironmentVariable("DATABASE_PRIVATE_URL");
+    if (!string.IsNullOrWhiteSpace(raw) && !raw.Equals("<empty string>", StringComparison.OrdinalIgnoreCase))
+        return (raw, "env:DATABASE_PRIVATE_URL");
+
+    // 4) PG* env vars (Railway provides these too)
     var pgHost = Environment.GetEnvironmentVariable("PGHOST");
     var pgPort = Environment.GetEnvironmentVariable("PGPORT") ?? "5432";
     var pgDb   = Environment.GetEnvironmentVariable("PGDATABASE");
@@ -356,22 +381,43 @@ static (string Value, string Source) ResolveConnectionString(IConfiguration conf
     var pgPwd  = Environment.GetEnvironmentVariable("PGPASSWORD");
     if (!string.IsNullOrWhiteSpace(pgHost) && !string.IsNullOrWhiteSpace(pgDb) && !string.IsNullOrWhiteSpace(pgUser))
     {
-        var npg = $"Host={pgHost};Port={pgPort};Database={pgDb};Username={pgUser};Password={pgPwd};SSL Mode=Disable";
+        // Determine SSL mode based on host
+        var sslMode = pgHost.Contains("railway.internal") || pgHost.Contains("localhost") || pgHost.StartsWith("10.") 
+            ? "Disable" : "Require";
+        var npg = $"Host={pgHost};Port={pgPort};Database={pgDb};Username={pgUser};Password={pgPwd};SSL Mode={sslMode};Trust Server Certificate=true";
         return (npg, "env:PG* variables");
     }
 
-    // 4) appsettings ConnectionStrings:DefaultConnection (ignore placeholder tokens)
+    // 5) Direct Railway variables (fallback)
+    var pgData = Environment.GetEnvironmentVariable("PGDATA");
+    var pgDatabase = Environment.GetEnvironmentVariable("PGDATABASE");
+    if (!string.IsNullOrWhiteSpace(pgDatabase))
+    {
+        // Try to construct from individual Railway variables
+        var host = Environment.GetEnvironmentVariable("RAILWAY_TCP_PROXY_DOMAIN") ?? "localhost";
+        var port = Environment.GetEnvironmentVariable("RAILWAY_TCP_PROXY_PORT") ?? "5432";
+        var user = Environment.GetEnvironmentVariable("PGUSER") ?? "postgres";
+        var password = Environment.GetEnvironmentVariable("PGPASSWORD") ?? "";
+        
+        if (!string.IsNullOrWhiteSpace(password))
+        {
+            var connectionString = $"Host={host};Port={port};Database={pgDatabase};Username={user};Password={password};SSL Mode=Require;Trust Server Certificate=true";
+            return (connectionString, "env:Railway constructed");
+        }
+    }
+
+    // 6) appsettings ConnectionStrings:DefaultConnection (ignore placeholder tokens)
     var cfg = config.GetConnectionString("DefaultConnection");
     if (!string.IsNullOrWhiteSpace(cfg) && !LooksLikePlaceholder(cfg))
         return (cfg, "config:ConnectionStrings:DefaultConnection");
 
-    // 5) nothing found -> empty triggers in-memory fallback
+    // 7) nothing found -> empty triggers in-memory fallback
     return (string.Empty, "none");
 
     static bool LooksLikePlaceholder(string s)
     {
         s = s.Trim();
-        return s.StartsWith("#{") || s.Contains("YOUR_CONNECTION_STRING", StringComparison.OrdinalIgnoreCase);
+        return s.StartsWith("#{") || s.Contains("YOUR_CONNECTION_STRING", StringComparison.OrdinalIgnoreCase) || s.Equals("<empty string>", StringComparison.OrdinalIgnoreCase);
     }
 }
 

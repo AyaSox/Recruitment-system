@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ATSRecruitSys.Server.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreateWithSouthAfricanFeatures : Migration
+    public partial class PostgreSQLInitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -30,11 +30,11 @@ namespace ATSRecruitSys.Server.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    FirstName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    LastName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    ProfilePictureUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FirstName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    LastName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     LastLoginDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ProfilePictureUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -56,18 +56,27 @@ namespace ATSRecruitSys.Server.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Skills",
+                name: "AuditLogs",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
-                    Category = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false)
+                    UserId = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: false),
+                    UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
+                    UserEmail = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
+                    Action = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    EntityType = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    EntityId = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    OldValues = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    NewValues = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Timestamp = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IPAddress = table.Column<string>(type: "nvarchar(45)", maxLength: 45, nullable: false),
+                    UserAgent = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    Details = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Skills", x => x.Id);
+                    table.PrimaryKey("PK_AuditLogs", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -184,35 +193,28 @@ namespace ATSRecruitSys.Server.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Location = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    CustomLocation = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Location = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     Department = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    CustomDepartment = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     PostedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ClosingDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsPublished = table.Column<bool>(type: "bit", nullable: false),
                     IsApproved = table.Column<bool>(type: "bit", nullable: false),
-                    ApprovedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ApprovedById = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    ApprovalNotes = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     EmploymentType = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     ExperienceLevel = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    IsEmploymentEquityPosition = table.Column<bool>(type: "bit", nullable: false),
-                    EmploymentEquityNotes = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    SalaryRangeMin = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    SalaryRangeMax = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    SalaryRangeMin = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
+                    SalaryRangeMax = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
                     Currency = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreatedById = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    CreatedById = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ApplicationUserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Jobs", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Jobs_AspNetUsers_ApprovedById",
-                        column: x => x.ApprovedById,
+                        name: "FK_Jobs_AspNetUsers_ApplicationUserId",
+                        column: x => x.ApplicationUserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.SetNull);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Jobs_AspNetUsers_CreatedById",
                         column: x => x.CreatedById,
@@ -230,11 +232,14 @@ namespace ATSRecruitSys.Server.Migrations
                     JobId = table.Column<int>(type: "int", nullable: false),
                     ApplicantId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     AppliedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    StatusUpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ResumeFilePath = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CoverLetter = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ApplicantNotes = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     RecruiterNotes = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    Skills = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TimelineNoteSent = table.Column<bool>(type: "bit", nullable: false),
                     ApplicationUserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
@@ -245,7 +250,7 @@ namespace ATSRecruitSys.Server.Migrations
                         column: x => x.ApplicantId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_JobApplications_AspNetUsers_ApplicationUserId",
                         column: x => x.ApplicationUserId,
@@ -258,174 +263,6 @@ namespace ATSRecruitSys.Server.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
-
-            migrationBuilder.CreateTable(
-                name: "JobSkills",
-                columns: table => new
-                {
-                    JobId = table.Column<int>(type: "int", nullable: false),
-                    SkillId = table.Column<int>(type: "int", nullable: false),
-                    Id = table.Column<int>(type: "int", nullable: false),
-                    IsRequired = table.Column<bool>(type: "bit", nullable: false),
-                    Level = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true),
-                    SkillId1 = table.Column<int>(type: "int", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_JobSkills", x => new { x.JobId, x.SkillId });
-                    table.ForeignKey(
-                        name: "FK_JobSkills_Jobs_JobId",
-                        column: x => x.JobId,
-                        principalTable: "Jobs",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_JobSkills_Skills_SkillId",
-                        column: x => x.SkillId,
-                        principalTable: "Skills",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_JobSkills_Skills_SkillId1",
-                        column: x => x.SkillId1,
-                        principalTable: "Skills",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ApplicantSkills",
-                columns: table => new
-                {
-                    JobApplicationId = table.Column<int>(type: "int", nullable: false),
-                    SkillId = table.Column<int>(type: "int", nullable: false),
-                    Id = table.Column<int>(type: "int", nullable: false),
-                    Level = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
-                    YearsOfExperience = table.Column<int>(type: "int", nullable: false),
-                    JobApplicationId1 = table.Column<int>(type: "int", nullable: true),
-                    SkillId1 = table.Column<int>(type: "int", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ApplicantSkills", x => new { x.JobApplicationId, x.SkillId });
-                    table.ForeignKey(
-                        name: "FK_ApplicantSkills_JobApplications_JobApplicationId",
-                        column: x => x.JobApplicationId,
-                        principalTable: "JobApplications",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ApplicantSkills_JobApplications_JobApplicationId1",
-                        column: x => x.JobApplicationId1,
-                        principalTable: "JobApplications",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_ApplicantSkills_Skills_SkillId",
-                        column: x => x.SkillId,
-                        principalTable: "Skills",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ApplicantSkills_Skills_SkillId1",
-                        column: x => x.SkillId1,
-                        principalTable: "Skills",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ApplicationStatusHistories",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    JobApplicationId = table.Column<int>(type: "int", nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
-                    ChangedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ChangedById = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Notes = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ApplicationStatusHistories", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ApplicationStatusHistories_AspNetUsers_ChangedById",
-                        column: x => x.ChangedById,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_ApplicationStatusHistories_JobApplications_JobApplicationId",
-                        column: x => x.JobApplicationId,
-                        principalTable: "JobApplications",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Interviews",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    JobApplicationId = table.Column<int>(type: "int", nullable: false),
-                    ScheduledDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    DurationMinutes = table.Column<int>(type: "int", nullable: false),
-                    InterviewType = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Location = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    InterviewerId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
-                    Notes = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
-                    Feedback = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
-                    Rating = table.Column<int>(type: "int", nullable: true),
-                    CompletedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ReminderSent = table.Column<bool>(type: "bit", nullable: false),
-                    JobApplicationId1 = table.Column<int>(type: "int", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Interviews", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Interviews_AspNetUsers_InterviewerId",
-                        column: x => x.InterviewerId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Interviews_JobApplications_JobApplicationId",
-                        column: x => x.JobApplicationId,
-                        principalTable: "JobApplications",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Interviews_JobApplications_JobApplicationId1",
-                        column: x => x.JobApplicationId1,
-                        principalTable: "JobApplications",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ApplicantSkills_JobApplicationId1",
-                table: "ApplicantSkills",
-                column: "JobApplicationId1");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ApplicantSkills_SkillId",
-                table: "ApplicantSkills",
-                column: "SkillId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ApplicantSkills_SkillId1",
-                table: "ApplicantSkills",
-                column: "SkillId1");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ApplicationStatusHistories_ChangedById",
-                table: "ApplicationStatusHistories",
-                column: "ChangedById");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ApplicationStatusHistories_JobApplicationId",
-                table: "ApplicationStatusHistories",
-                column: "JobApplicationId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -467,19 +304,24 @@ namespace ATSRecruitSys.Server.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Interviews_InterviewerId",
-                table: "Interviews",
-                column: "InterviewerId");
+                name: "IX_AuditLogs_EntityType",
+                table: "AuditLogs",
+                column: "EntityType");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Interviews_JobApplicationId",
-                table: "Interviews",
-                column: "JobApplicationId");
+                name: "IX_AuditLogs_EntityType_EntityId",
+                table: "AuditLogs",
+                columns: new[] { "EntityType", "EntityId" });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Interviews_JobApplicationId1",
-                table: "Interviews",
-                column: "JobApplicationId1");
+                name: "IX_AuditLogs_Timestamp",
+                table: "AuditLogs",
+                column: "Timestamp");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AuditLogs_UserId",
+                table: "AuditLogs",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_JobApplications_ApplicantId",
@@ -497,35 +339,19 @@ namespace ATSRecruitSys.Server.Migrations
                 column: "JobId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Jobs_ApprovedById",
+                name: "IX_Jobs_ApplicationUserId",
                 table: "Jobs",
-                column: "ApprovedById");
+                column: "ApplicationUserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Jobs_CreatedById",
                 table: "Jobs",
                 column: "CreatedById");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_JobSkills_SkillId",
-                table: "JobSkills",
-                column: "SkillId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_JobSkills_SkillId1",
-                table: "JobSkills",
-                column: "SkillId1");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "ApplicantSkills");
-
-            migrationBuilder.DropTable(
-                name: "ApplicationStatusHistories");
-
             migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
 
@@ -542,19 +368,13 @@ namespace ATSRecruitSys.Server.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "Interviews");
-
-            migrationBuilder.DropTable(
-                name: "JobSkills");
-
-            migrationBuilder.DropTable(
-                name: "AspNetRoles");
+                name: "AuditLogs");
 
             migrationBuilder.DropTable(
                 name: "JobApplications");
 
             migrationBuilder.DropTable(
-                name: "Skills");
+                name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "Jobs");

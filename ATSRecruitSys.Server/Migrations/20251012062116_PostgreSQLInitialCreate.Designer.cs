@@ -12,90 +12,18 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ATSRecruitSys.Server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251002161949_InitialCreateWithSouthAfricanFeatures")]
-    partial class InitialCreateWithSouthAfricanFeatures
+    [Migration("20251012062116_PostgreSQLInitialCreate")]
+    partial class PostgreSQLInitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.9")
+                .HasAnnotation("ProductVersion", "8.0.11")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("ATSRecruitSys.Server.Models.ApplicantSkill", b =>
-                {
-                    b.Property<int>("JobApplicationId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SkillId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("JobApplicationId1")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Level")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.Property<int?>("SkillId1")
-                        .HasColumnType("int");
-
-                    b.Property<int>("YearsOfExperience")
-                        .HasColumnType("int");
-
-                    b.HasKey("JobApplicationId", "SkillId");
-
-                    b.HasIndex("JobApplicationId1");
-
-                    b.HasIndex("SkillId");
-
-                    b.HasIndex("SkillId1");
-
-                    b.ToTable("ApplicantSkills");
-                });
-
-            modelBuilder.Entity("ATSRecruitSys.Server.Models.ApplicationStatusHistory", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ChangedById")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("ChangedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("JobApplicationId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Notes")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ChangedById");
-
-                    b.HasIndex("JobApplicationId");
-
-                    b.ToTable("ApplicationStatusHistories");
-                });
 
             modelBuilder.Entity("ATSRecruitSys.Server.Models.ApplicationUser", b =>
                 {
@@ -121,16 +49,16 @@ namespace ATSRecruitSys.Server.Migrations
 
                     b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<DateTime?>("LastLoginDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("LastName")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
@@ -181,7 +109,7 @@ namespace ATSRecruitSys.Server.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("ATSRecruitSys.Server.Models.Interview", b =>
+            modelBuilder.Entity("ATSRecruitSys.Server.Models.AuditLog", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -189,62 +117,72 @@ namespace ATSRecruitSys.Server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime?>("CompletedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("DurationMinutes")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Feedback")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<string>("InterviewType")
+                    b.Property<string>("Action")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<string>("InterviewerId")
+                    b.Property<string>("Details")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("JobApplicationId")
-                        .HasColumnType("int");
+                    b.Property<string>("EntityId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
-                    b.Property<int?>("JobApplicationId1")
-                        .HasColumnType("int");
+                    b.Property<string>("EntityType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
-                    b.Property<string>("Location")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                    b.Property<string>("IPAddress")
+                        .IsRequired()
+                        .HasMaxLength(45)
+                        .HasColumnType("nvarchar(45)");
 
-                    b.Property<string>("Notes")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
+                    b.Property<string>("NewValues")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("Rating")
-                        .HasColumnType("int");
+                    b.Property<string>("OldValues")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("ReminderSent")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("ScheduledDate")
+                    b.Property<DateTime>("Timestamp")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Status")
+                    b.Property<string>("UserAgent")
                         .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("UserEmail")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("InterviewerId");
+                    b.HasIndex("EntityType");
 
-                    b.HasIndex("JobApplicationId");
+                    b.HasIndex("Timestamp");
 
-                    b.HasIndex("JobApplicationId1");
+                    b.HasIndex("UserId");
 
-                    b.ToTable("Interviews");
+                    b.HasIndex("EntityType", "EntityId");
+
+                    b.ToTable("AuditLogs");
                 });
 
             modelBuilder.Entity("ATSRecruitSys.Server.Models.Job", b =>
@@ -255,14 +193,8 @@ namespace ATSRecruitSys.Server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("ApprovalNotes")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ApprovedById")
+                    b.Property<string>("ApplicationUserId")
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime?>("ApprovedDate")
-                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("ClosingDate")
                         .HasColumnType("datetime2");
@@ -275,14 +207,6 @@ namespace ATSRecruitSys.Server.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("CustomDepartment")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("CustomLocation")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
                     b.Property<string>("Department")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -290,9 +214,6 @@ namespace ATSRecruitSys.Server.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("EmploymentEquityNotes")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("EmploymentType")
@@ -308,24 +229,23 @@ namespace ATSRecruitSys.Server.Migrations
                     b.Property<bool>("IsApproved")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsEmploymentEquityPosition")
-                        .HasColumnType("bit");
-
                     b.Property<bool>("IsPublished")
                         .HasColumnType("bit");
 
                     b.Property<string>("Location")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<DateTime>("PostedDate")
                         .HasColumnType("datetime2");
 
                     b.Property<decimal?>("SalaryRangeMax")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal?>("SalaryRangeMin")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Title")
@@ -335,7 +255,7 @@ namespace ATSRecruitSys.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ApprovedById");
+                    b.HasIndex("ApplicationUserId");
 
                     b.HasIndex("CreatedById");
 
@@ -378,10 +298,19 @@ namespace ATSRecruitSys.Server.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Skills")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Status")
                         .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("StatusUpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("TimelineNoteSent")
+                        .HasColumnType("bit");
 
                     b.HasKey("Id");
 
@@ -392,63 +321,6 @@ namespace ATSRecruitSys.Server.Migrations
                     b.HasIndex("JobId");
 
                     b.ToTable("JobApplications");
-                });
-
-            modelBuilder.Entity("ATSRecruitSys.Server.Models.JobSkill", b =>
-                {
-                    b.Property<int>("JobId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SkillId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsRequired")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Level")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.Property<int?>("SkillId1")
-                        .HasColumnType("int");
-
-                    b.HasKey("JobId", "SkillId");
-
-                    b.HasIndex("SkillId");
-
-                    b.HasIndex("SkillId1");
-
-                    b.ToTable("JobSkills");
-                });
-
-            modelBuilder.Entity("ATSRecruitSys.Server.Models.Skill", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Category")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Skills");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -584,89 +456,17 @@ namespace ATSRecruitSys.Server.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("ATSRecruitSys.Server.Models.ApplicantSkill", b =>
-                {
-                    b.HasOne("ATSRecruitSys.Server.Models.JobApplication", "JobApplication")
-                        .WithMany()
-                        .HasForeignKey("JobApplicationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ATSRecruitSys.Server.Models.JobApplication", null)
-                        .WithMany("Skills")
-                        .HasForeignKey("JobApplicationId1");
-
-                    b.HasOne("ATSRecruitSys.Server.Models.Skill", "Skill")
-                        .WithMany()
-                        .HasForeignKey("SkillId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ATSRecruitSys.Server.Models.Skill", null)
-                        .WithMany("Applicants")
-                        .HasForeignKey("SkillId1");
-
-                    b.Navigation("JobApplication");
-
-                    b.Navigation("Skill");
-                });
-
-            modelBuilder.Entity("ATSRecruitSys.Server.Models.ApplicationStatusHistory", b =>
-                {
-                    b.HasOne("ATSRecruitSys.Server.Models.ApplicationUser", "ChangedBy")
-                        .WithMany()
-                        .HasForeignKey("ChangedById")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("ATSRecruitSys.Server.Models.JobApplication", "JobApplication")
-                        .WithMany("StatusHistory")
-                        .HasForeignKey("JobApplicationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ChangedBy");
-
-                    b.Navigation("JobApplication");
-                });
-
-            modelBuilder.Entity("ATSRecruitSys.Server.Models.Interview", b =>
-                {
-                    b.HasOne("ATSRecruitSys.Server.Models.ApplicationUser", "Interviewer")
-                        .WithMany()
-                        .HasForeignKey("InterviewerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("ATSRecruitSys.Server.Models.JobApplication", "JobApplication")
-                        .WithMany()
-                        .HasForeignKey("JobApplicationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ATSRecruitSys.Server.Models.JobApplication", null)
-                        .WithMany("Interviews")
-                        .HasForeignKey("JobApplicationId1");
-
-                    b.Navigation("Interviewer");
-
-                    b.Navigation("JobApplication");
-                });
-
             modelBuilder.Entity("ATSRecruitSys.Server.Models.Job", b =>
                 {
-                    b.HasOne("ATSRecruitSys.Server.Models.ApplicationUser", "ApprovedBy")
-                        .WithMany()
-                        .HasForeignKey("ApprovedById")
-                        .OnDelete(DeleteBehavior.SetNull);
+                    b.HasOne("ATSRecruitSys.Server.Models.ApplicationUser", null)
+                        .WithMany("CreatedJobs")
+                        .HasForeignKey("ApplicationUserId");
 
                     b.HasOne("ATSRecruitSys.Server.Models.ApplicationUser", "CreatedBy")
                         .WithMany()
                         .HasForeignKey("CreatedById")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("ApprovedBy");
 
                     b.Navigation("CreatedBy");
                 });
@@ -676,11 +476,11 @@ namespace ATSRecruitSys.Server.Migrations
                     b.HasOne("ATSRecruitSys.Server.Models.ApplicationUser", "Applicant")
                         .WithMany()
                         .HasForeignKey("ApplicantId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("ATSRecruitSys.Server.Models.ApplicationUser", null)
-                        .WithMany("Applications")
+                        .WithMany("JobApplications")
                         .HasForeignKey("ApplicationUserId");
 
                     b.HasOne("ATSRecruitSys.Server.Models.Job", "Job")
@@ -692,29 +492,6 @@ namespace ATSRecruitSys.Server.Migrations
                     b.Navigation("Applicant");
 
                     b.Navigation("Job");
-                });
-
-            modelBuilder.Entity("ATSRecruitSys.Server.Models.JobSkill", b =>
-                {
-                    b.HasOne("ATSRecruitSys.Server.Models.Job", "Job")
-                        .WithMany("JobSkills")
-                        .HasForeignKey("JobId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ATSRecruitSys.Server.Models.Skill", "Skill")
-                        .WithMany()
-                        .HasForeignKey("SkillId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ATSRecruitSys.Server.Models.Skill", null)
-                        .WithMany("Jobs")
-                        .HasForeignKey("SkillId1");
-
-                    b.Navigation("Job");
-
-                    b.Navigation("Skill");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -770,30 +547,14 @@ namespace ATSRecruitSys.Server.Migrations
 
             modelBuilder.Entity("ATSRecruitSys.Server.Models.ApplicationUser", b =>
                 {
-                    b.Navigation("Applications");
+                    b.Navigation("CreatedJobs");
+
+                    b.Navigation("JobApplications");
                 });
 
             modelBuilder.Entity("ATSRecruitSys.Server.Models.Job", b =>
                 {
                     b.Navigation("JobApplications");
-
-                    b.Navigation("JobSkills");
-                });
-
-            modelBuilder.Entity("ATSRecruitSys.Server.Models.JobApplication", b =>
-                {
-                    b.Navigation("Interviews");
-
-                    b.Navigation("Skills");
-
-                    b.Navigation("StatusHistory");
-                });
-
-            modelBuilder.Entity("ATSRecruitSys.Server.Models.Skill", b =>
-                {
-                    b.Navigation("Applicants");
-
-                    b.Navigation("Jobs");
                 });
 #pragma warning restore 612, 618
         }
