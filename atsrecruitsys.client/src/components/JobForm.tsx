@@ -105,17 +105,6 @@ const JobForm: React.FC<JobFormProps> = ({ job, onSubmit, onCancel, loading = fa
           {job ? 'Edit Job' : 'Create New Job'}
         </Typography>
 
-        {!job && (
-          <Alert severity="info" sx={{ mb: 3 }}>
-            <Typography variant="body2" gutterBottom>
-              <strong>Admin Approval Required:</strong> New job postings require admin approval before they can be published and go live.
-            </Typography>
-            <Typography variant="body2">
-              Once you submit this job, it will be sent to administrators for review. You will be notified when it has been approved for publishing.
-            </Typography>
-          </Alert>
-        )}
-
         <form onSubmit={formik.handleSubmit}>
           <Grid container spacing={3}>
             {/* Basic Information */}
@@ -290,16 +279,10 @@ const JobForm: React.FC<JobFormProps> = ({ job, onSubmit, onCancel, loading = fa
                       checked={formik.values.isPublished}
                       onChange={(e) => formik.setFieldValue('isPublished', e.target.checked)}
                       name="isPublished"
-                      disabled={!job?.isApproved}
                     />
                   }
                   label="Published"
                 />
-                {!job?.isApproved && (
-                  <Typography variant="caption" color="error" display="block">
-                    Job must be approved before it can be published
-                  </Typography>
-                )}
               </Grid>
             )}
 
