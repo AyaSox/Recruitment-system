@@ -92,7 +92,7 @@ const UserManagementPage: React.FC = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/auth/users');
+      const response = await api.get('/api/auth/users');
       if (response.data.isSuccess) {
         // Filter out Applicant role users - only show internal staff
         const internalUsers = response.data.data.filter((user: User) =>
@@ -195,7 +195,7 @@ const UserManagementPage: React.FC = () => {
       }
 
       // Create user using admin endpoint
-      const response = await api.post('/auth/create-user', {
+      const response = await api.post('/api/auth/create-user', {
         email: newUser.email,
         firstName: newUser.firstName,
         lastName: newUser.lastName,
@@ -238,13 +238,13 @@ const UserManagementPage: React.FC = () => {
       
       if (currentRole !== editUser.role) {
         // Remove old role
-        await api.post('/auth/remove-role', {
+        await api.post('/api/auth/remove-role', {
           userId: editUser.id,
           role: currentRole,
         });
         
         // Add new role
-        await api.post('/auth/assign-role', {
+        await api.post('/api/auth/assign-role', {
           userId: editUser.id,
           role: editUser.role,
         });
@@ -265,7 +265,7 @@ const UserManagementPage: React.FC = () => {
     try {
       setError(null);
       
-      const response = await api.delete(`/auth/users/${userToDelete.id}`);
+      const response = await api.delete(`/api/auth/users/${userToDelete.id}`);
       
       if (response.data.isSuccess) {
         setSuccess(`User ${userToDelete.email} deleted successfully!`);
