@@ -209,7 +209,7 @@ const EditJobPage: React.FC = () => {
               <li><strong>Significant rewrites</strong> - Consider unpublishing or creating a new job posting</li>
             </ul>
             <Typography variant="body2" sx={{ mt: 1, fontStyle: 'italic' }}>
-              ?? All changes are logged in the audit trail for transparency.
+              All changes are logged in the audit trail for transparency.
             </Typography>
           </Alert>
         )}
