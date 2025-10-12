@@ -138,7 +138,8 @@ const JobDetailsPage: React.FC = () => {
 
       // Show success message
       const action = publishStatus ? 'published' : 'unpublished';
-      showSuccessMessage(`? Job ${action} successfully!`);
+      // Avoid special characters that can render as question marks in some environments
+      showSuccessMessage(`Job ${action} successfully!`);
       
     } catch (err: any) {
       setError(err.message || `Failed to ${publishStatus ? 'publish' : 'unpublish'} job`);
