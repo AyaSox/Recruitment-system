@@ -2,6 +2,11 @@
 
 A full-stack Applicant Tracking System built with .NET 8 (Web API) and React (TypeScript).
 
+## Live URLs
+
+- Frontend: https://recruitment-system-six.vercel.app/
+- Backend API: https://recruitment-system-production-7f72.up.railway.app/
+
 ## Features
 
 - JWT authentication with role-based access (Admin, Recruiter, Hiring Manager, Applicant)
@@ -63,14 +68,22 @@ App: http://localhost:5173
 
 ## Screenshots
 
-Selected screenshots from the `screenshots` folder (if present):
+Below images are loaded directly from the `screenshots` folder. If any image does not render, add the matching file into the folder or update the name here.
 
-- Dashboard: [screenshots/09-admin-dashboard.png](screenshots/09-admin-dashboard.png)
-- Jobs page (public): [screenshots/06-jobs-page-public.png](screenshots/06-jobs-page-public.png)
-- Applications management: [screenshots/10-applications-management.png](screenshots/10-applications-management.png)
-- User management: [screenshots/11-user-management-page.png](screenshots/11-user-management-page.png)
+### Admin Dashboard
+![Admin Dashboard](screenshots/09-admin-dashboard.png)
 
-Note: If an image link shows as not found, add the corresponding PNG to the `screenshots` folder or update the file name here.
+### Jobs (Public View)
+![Jobs Page - Public](screenshots/06-jobs-page-public.png)
+
+### Applications Management
+![Applications Management](screenshots/10-applications-management.png)
+
+### User Management
+![User Management](screenshots/11-user-management-page.png)
+
+### Reports
+![Reports Page](screenshots/12-reports-page.png)
 
 ## Sample Accounts
 
