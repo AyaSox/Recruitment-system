@@ -79,7 +79,7 @@ const EditJobPage: React.FC = () => {
       setError(null);
       await JobService.updateJob(jobId, values as UpdateJobRequest);
       
-      showSuccessMessage('Job updated successfully! Changes will be visible once approved by admin.');
+      showSuccessMessage('Job updated successfully!');
       
       setTimeout(() => {
         navigate(`/jobs/${jobId}`);
@@ -182,8 +182,9 @@ const EditJobPage: React.FC = () => {
           </Box>
           
           
-          {/* Delete Button - Admin Only */}
-          {user?.roles.includes('Admin') && (
+          
+          {/* Delete Button - Admin, Recruiter, HiringManager (own jobs only) */}
+          {(user?.roles.includes('Admin') || user?.roles.includes('Recruiter') || user?.roles.includes('HiringManager')) && (
             <Button
               variant="outlined"
               color="error"

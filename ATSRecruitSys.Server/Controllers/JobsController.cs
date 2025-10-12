@@ -115,6 +115,11 @@ namespace ATSRecruitSys.Server.Controllers
 
             try
             {
+                // Check authorization: Admin can edit all, others only their own jobs
+                var canEdit = await _jobService.CanUserEditJobAsync(id, userId, IsInRole("Admin"));
+                if (!canEdit)
+                    return Forbid();
+
                 var job = await _jobService.UpdateJobAsync(dto, userId);
                 
                 if (job == null)
@@ -147,6 +152,11 @@ namespace ATSRecruitSys.Server.Controllers
 
             try
             {
+                // Check authorization: Admin can publish all, others only their own jobs
+                var canPublish = await _jobService.CanUserEditJobAsync(id, userId, IsInRole("Admin"));
+                if (!canPublish)
+                    return Forbid();
+
                 var job = await _jobService.PublishJobAsync(id, userId);
                 
                 if (job == null)
@@ -177,6 +187,11 @@ namespace ATSRecruitSys.Server.Controllers
 
             try
             {
+                // Check authorization: Admin can unpublish all, others only their own jobs
+                var canUnpublish = await _jobService.CanUserEditJobAsync(id, userId, IsInRole("Admin"));
+                if (!canUnpublish)
+                    return Forbid();
+
                 var job = await _jobService.UnpublishJobAsync(id, userId);
                 
                 if (job == null)
@@ -199,7 +214,7 @@ namespace ATSRecruitSys.Server.Controllers
         /// Delete a job posting
         /// </summary>
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Recruiter,HiringManager")]
         public async Task<ActionResult> DeleteJob(int id)
         {
             var userId = GetCurrentUserId();
@@ -207,6 +222,11 @@ namespace ATSRecruitSys.Server.Controllers
 
             try
             {
+                // Check authorization: Admin can delete all, others only their own jobs
+                var canDelete = await _jobService.CanUserEditJobAsync(id, userId, IsInRole("Admin"));
+                if (!canDelete)
+                    return Forbid();
+
                 var result = await _jobService.DeleteJobAsync(id, userId);
                 
                 if (!result)

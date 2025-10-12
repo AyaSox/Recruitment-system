@@ -54,13 +54,13 @@ const [createdJobId, setCreatedJobId] = useState<number | null>(null);
 
   const handleGoToJobs = () => {
     setApprovalDialogOpen(false);
-    notifySuccess('Job created successfully! Awaiting admin approval.');
+    notifySuccess('Job created successfully! You can now publish it.');
     navigate('/jobs');
   };
 
   const handleCloseDialog = () => {
     setApprovalDialogOpen(false);
-    notifySuccess('Job created successfully! Awaiting admin approval.');
+    notifySuccess('Job created successfully! You can now publish it.');
   };
 
   return (
@@ -115,23 +115,23 @@ const [createdJobId, setCreatedJobId] = useState<number | null>(null);
           <DialogContent>
             <Box textAlign="center" px={2}>
               <Typography variant="h6" gutterBottom color="primary">
-                Awaiting Admin Approval
+                Job Created Successfully!
               </Typography>
               <Typography variant="body1" paragraph>
-                Your job posting has been created and submitted to administrators for review.
+                Your job posting has been created and is ready to be published.
               </Typography>
               <Typography variant="body2" color="text.secondary" paragraph>
                 <strong>Next Steps:</strong>
               </Typography>
               <Typography variant="body2" color="text.secondary" paragraph sx={{ textAlign: 'left', ml: 2 }}>
-                • Admin will review your job posting<br/>
-                • Once approved, it will be available for publishing<br/>
-                • You will be notified when approval is complete<br/>
-                • Only admins can publish/unpublish jobs
+                • Review your job posting details<br/>
+                • Publish it to make it visible to candidates<br/>
+                • Edit or unpublish anytime as needed<br/>
+                • Monitor applications from the dashboard
               </Typography>
               <Alert severity="info" sx={{ mt: 2, textAlign: 'left' }}>
                 <Typography variant="body2">
-                  <strong>Note:</strong> Until approved and published, this job will not be visible to external candidates.
+                  <strong>Note:</strong> Until published, this job will not be visible to external candidates.
                 </Typography>
               </Alert>
             </Box>

@@ -157,8 +157,8 @@ namespace ATSRecruitSys.Server.Services
                 SalaryRangeMax = dto.SalaryRangeMax,
                 Currency = dto.Currency?.Trim() ?? "ZAR",
                 ClosingDate = dto.ClosingDate,
-                IsPublished = false, // Jobs start as unpublished
-                IsApproved = false,  // Jobs need approval
+                IsPublished = false, // Jobs start as unpublished (can be published immediately)
+                IsApproved = true,   // No approval needed - jobs are auto-approved
                 CreatedById = userId,
                 PostedDate = DateTime.UtcNow
             };
@@ -321,6 +321,25 @@ namespace ATSRecruitSys.Server.Services
                 .Distinct()
                 .OrderBy(d => d)
                 .ToListAsync();
+        }
+
+        /// <summary>
+        /// Check if user can edit/delete a job
+        /// Admin can edit/delete all jobs
+        /// Recruiters/HiringManagers can only edit/delete their own jobs
+        /// </summary>
+        public async Task<bool> CanUserEditJobAsync(int jobId, string userId, bool isAdmin)
+        {
+            // Admin has full access
+            if (isAdmin)
+                return true;
+
+            // Others can only edit their own jobs
+            var job = await _context.Jobs.FindAsync(jobId);
+            if (job == null)
+                return false;
+
+            return job.CreatedById == userId;
         }
 
         // Helper methods
