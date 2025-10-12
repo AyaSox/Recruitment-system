@@ -34,11 +34,11 @@ import { ApplicationService } from '../services';
 import { Application } from '../types';
 import { format } from 'date-fns';
 
-// Application stages/columns for the funnel
+// Application stages/columns for the funnel - matching actual database statuses
 const APPLICATION_STAGES = [
   { id: 'applied', title: 'Applied', color: '#2196f3', status: 'Applied' },
-  { id: 'screening', title: 'Screening', color: '#ff9800', status: 'Under Review' },
-  { id: 'interview', title: 'Interview', color: '#9c27b0', status: 'Interview Scheduled' },
+  { id: 'screening', title: 'Screening', color: '#ff9800', status: 'Screening' },
+  { id: 'interview', title: 'Interview', color: '#9c27b0', status: 'Interview' },
   { id: 'offer', title: 'Offer', color: '#4caf50', status: 'Offer' },
   { id: 'hired', title: 'Hired', color: '#8bc34a', status: 'Hired' },
   { id: 'rejected', title: 'Rejected', color: '#f44336', status: 'Rejected' },
