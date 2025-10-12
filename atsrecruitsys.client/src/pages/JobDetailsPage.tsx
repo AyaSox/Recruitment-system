@@ -142,13 +142,19 @@ const JobDetailsPage: React.FC = () => {
 
   const handleTogglePublish = async () => {
     try {
-      await JobService.setJobPublishStatus(jobId, publishStatus);
+      // Use the dedicated publish/unpublish endpoints instead of setJobPublishStatus
+      if (publishStatus) {
+        await JobService.publishJob(jobId);
+      } else {
+        await JobService.unpublishJob(jobId);
+      }
 
       // Update local state
       if (job) {
         setJob({
           ...job,
           isPublished: publishStatus,
+          isApproved: publishStatus, // Publishing also approves the job
         });
       }
 
