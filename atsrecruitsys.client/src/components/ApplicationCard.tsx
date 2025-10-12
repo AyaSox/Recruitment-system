@@ -1,7 +1,7 @@
 import React from 'react';
 import { Paper, Typography, Box, Button, Grid, Chip, Avatar, Divider } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { Application, ApplicantSkill } from '../types';
+import { Application } from '../types';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 
@@ -60,19 +60,6 @@ const ApplicationCard: React.FC<ApplicationCardProps> = React.memo(
       ? application.statusHistory[0] 
       : null;
 
-    // Safely handle skills array - skills might be a JSON string from backend
-    let skills: ApplicantSkill[] = [];
-    try {
-      if (Array.isArray(application.skills)) {
-        skills = application.skills;
-      } else if (typeof application.skills === 'string' && application.skills) {
-        skills = JSON.parse(application.skills);
-      }
-    } catch (e) {
-      console.warn('Failed to parse skills:', e);
-      skills = [];
-    }
-
     // Get applicant initials safely
     const getInitials = (name: string) => {
       return name ? name.split(' ').map(n => n.charAt(0)).join('').toUpperCase() : '?';
@@ -130,23 +117,7 @@ const ApplicationCard: React.FC<ApplicationCardProps> = React.memo(
             </Typography>
           </Grid>
 
-          {skills.length > 0 && (
-            <Grid item xs={12}>
-              <Box>
-                <Typography variant="subtitle2">Skills:</Typography>
-                <Box mt={1}>
-                  {skills.map((skill) => (
-                    <StyledChip
-                      key={skill.skillId}
-                      label={`${skill.skillName} (${skill.level}, ${skill.yearsOfExperience} yrs)`}
-                      variant="outlined"
-                      size="small"
-                    />
-                  ))}
-                </Box>
-              </Box>
-            </Grid>
-          )}
+
 
           {application.coverLetter && (
             <Grid item xs={12}>

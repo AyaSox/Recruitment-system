@@ -30,7 +30,6 @@ export interface Application {
   applicantNotes?: string;
   recruiterNotes?: string;
   statusHistory?: ApplicationStatusHistory[]; // Optional as backend may not return it
-  skills?: ApplicantSkill[] | string; // Can be array or JSON string from backend
   // Additional fields for funnel
   email?: string; // Alias for applicantEmail
   location?: string;

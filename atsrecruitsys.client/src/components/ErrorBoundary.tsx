@@ -29,13 +29,16 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    // Log error to console in development
+    // Always log errors in development
     if (import.meta.env.DEV) {
       console.error('ErrorBoundary caught an error:', error, errorInfo);
+      console.error('Component Stack:', errorInfo.componentStack);
+    } else {
+      // In production, log minimal info
+      console.error('An error occurred:', error.message);
+      // TODO: Send error to logging service in production
+      // logErrorToService(error, errorInfo);
     }
-
-    // TODO: Send error to logging service in production
-    // logErrorToService(error, errorInfo);
 
     this.setState({
       error,
@@ -86,7 +89,10 @@ function ErrorFallback({ error, onReset }: ErrorFallbackProps) {
         </Typography>
 
         <Typography variant="h6" color="text.secondary" sx={{ mb: 3 }}>
-          We&apos;re sorry for the inconvenience. An unexpected error has occurred.
+          {import.meta.env.DEV 
+            ? 'An unexpected error has occurred. Please see details below.'
+            : 'We\'re sorry for the inconvenience. Please try refreshing the page or contact support if the problem persists.'
+          }
         </Typography>
 
         {import.meta.env.DEV && error && (
@@ -117,6 +123,12 @@ function ErrorFallback({ error, onReset }: ErrorFallbackProps) {
               </Typography>
             )}
           </Box>
+        )}
+
+        {!import.meta.env.DEV && (
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 2, fontStyle: 'italic' }}>
+            Error ID: {Date.now().toString(36).toUpperCase()}
+          </Typography>
         )}
 
         <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', mt: 4 }}>
