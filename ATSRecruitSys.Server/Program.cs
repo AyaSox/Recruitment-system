@@ -247,29 +247,33 @@ using (var scope = app.Services.CreateScope())
         }
         else
         {
-            // Apply database migrations (proper way for production)
+            // Apply database migrations (Railway PostgreSQL aggressive fix)
             if (!context.Database.IsInMemory())
             {
-                logger.LogInformation("Applying database migrations...");
+                logger.LogInformation("Initializing Railway PostgreSQL database...");
                 
-                // Use migrations for proper database schema management
-                var migrated = await TryMigrateWithRetryAsync(context, logger, maxAttempts: 5, delaySeconds: 5);
+                // Use Railway-specific database initializer for aggressive fix
+                var railwayInitialized = await RailwayDatabaseInitializer.InitializeRailwayDatabaseAsync(context, logger);
                 
-                if (migrated)
+                if (!railwayInitialized)
                 {
-                    logger.LogInformation("Database migrations applied successfully");
-                }
-                else
-                {
-                    logger.LogWarning("Database migrations failed. Attempting fallback to EnsureCreated...");
+                    logger.LogWarning("Railway database initialization failed. Trying standard approach...");
+                    
                     try
                     {
-                        await context.Database.EnsureCreatedAsync();
-                        logger.LogInformation("Database schema created using EnsureCreated fallback");
+                        // Fallback to standard migration approach
+                        var migrated = await TryMigrateWithRetryAsync(context, logger, maxAttempts: 3, delaySeconds: 5);
+                        
+                        if (!migrated)
+                        {
+                            logger.LogWarning("Standard migrations failed. Using EnsureCreated...");
+                            await context.Database.EnsureCreatedAsync();
+                            logger.LogInformation("Database schema created using EnsureCreated fallback");
+                        }
                     }
                     catch (Exception fallbackEx)
                     {
-                        logger.LogError(fallbackEx, "Both migration and EnsureCreated failed");
+                        logger.LogError(fallbackEx, "All database initialization attempts failed");
                         throw;
                     }
                 }
@@ -491,9 +495,37 @@ static async Task<bool> TryMigrateWithRetryAsync(DbContext context, ILogger logg
         }
         catch (Exception ex)
         {
-            logger.LogWarning(ex, "Migration attempt {Attempt}/{Max} failed", attempt, maxAttempts);
+            logger.LogWarning(ex, "Migration attempt {Attempt}/{Max} failed: {Error}", attempt, maxAttempts, ex.Message);
+            if (attempt < maxAttempts)
+            {
+                await Task.Delay(TimeSpan.FromSeconds(delaySeconds));
+            }
         }
-        await Task.Delay(TimeSpan.FromSeconds(delaySeconds));
     }
     return false;
+}
+
+// Helper: test if database can be queried (exists and has tables)
+static async Task<bool> CanQueryDatabaseAsync(DbContext context, ILogger logger)
+{
+    try
+    {
+        // Try to count records from a system table that should exist
+        var connection = context.Database.GetDbConnection();
+        await connection.OpenAsync();
+        
+        using var command = connection.CreateCommand();
+        command.CommandText = "SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'AspNetRoles'";
+        
+        var result = await command.ExecuteScalarAsync();
+        var tableCount = Convert.ToInt32(result);
+        
+        logger.LogInformation("AspNetRoles table check result: {Count}", tableCount);
+        return tableCount > 0;
+    }
+    catch (Exception ex)
+    {
+        logger.LogWarning(ex, "Database query test failed: {Error}", ex.Message);
+        return false;
+    }
 }
