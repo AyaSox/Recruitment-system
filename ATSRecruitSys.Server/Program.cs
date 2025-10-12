@@ -278,8 +278,17 @@ static string ConvertPostgresUrlToNpgsql(string raw)
     var database = uri.AbsolutePath.TrimStart('/');
 
     // Defaults for cloud providers
-    var sslMode = "Require"; // secure by default
-    var trustServerCert = "true";
+    // Railway internal host does NOT use SSL; public proxy does.
+    var isInternalHost = host.Equals("localhost", StringComparison.OrdinalIgnoreCase)
+                         || host.Equals("127.0.0.1")
+                         || host.EndsWith(".internal", StringComparison.OrdinalIgnoreCase)
+                         || host.EndsWith(".railway.internal", StringComparison.OrdinalIgnoreCase)
+                         || host.StartsWith("10.")
+                         || host.StartsWith("192.168.")
+                         || host.StartsWith("172.");
+
+    var sslMode = isInternalHost ? "Disable" : "Require"; // secure by default unless internal
+    var trustServerCert = isInternalHost ? "false" : "true";
 
     // Parse query string for overrides (e.g., ?sslmode=verify-full)
     var query = uri.Query.TrimStart('?');
