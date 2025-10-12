@@ -41,6 +41,12 @@ Removed admin approval workflow and implemented role-based job edit/delete permi
   - ~~"Admin will review your job posting"~~
   - Changed to: **"Review and publish to make visible to candidates"**
 
+#### 3. **JobForm.tsx**
+- ? Removed info alert: ~~"Admin Approval Required: New job postings require admin approval..."~~
+- ? Removed publish toggle disabled state (no longer checks `job?.isApproved`)
+- ? Removed error message: ~~"Job must be approved before it can be published"~~
+- ? Jobs can now be published immediately upon creation
+
 ---
 
 ## ?? New Permission Model
@@ -114,10 +120,12 @@ public async Task<ActionResult<JobDto>> UpdateJob(int id, [FromBody] UpdateJobDt
 - [ ] Delete button visible only on own jobs
 
 ### UI Changes
-- [ ] No "awaiting admin approval" messages
-- [ ] Success message says "Job created successfully! You can now publish it."
-- [ ] Edit success says "Job updated successfully!" (no admin mention)
-- [ ] Delete button visible to appropriate roles
+- [x] No "awaiting admin approval" messages
+- [x] Success message says "Job created successfully! You can now publish it."
+- [x] Edit success says "Job updated successfully!" (no admin mention)
+- [x] Delete button visible to appropriate roles
+- [x] Job form no longer shows admin approval info alert
+- [x] Publish toggle no longer disabled or shows approval error
 
 ---
 
@@ -159,6 +167,7 @@ UPDATE Jobs SET IsApproved = 1 WHERE IsApproved = 0;
 ### Frontend (TypeScript/React)
 - `atsrecruitsys.client/src/pages/EditJobPage.tsx`
 - `atsrecruitsys.client/src/pages/CreateJobPage.tsx`
+- `atsrecruitsys.client/src/components/JobForm.tsx`
 
 ---
 
