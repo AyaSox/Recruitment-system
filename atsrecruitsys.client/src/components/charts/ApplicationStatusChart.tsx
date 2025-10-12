@@ -8,12 +8,13 @@ interface ApplicationStatusChartProps {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  'New': '#ffa726',
+  'Applied': '#ffa726',    // Fixed: Changed from 'New' to 'Applied'
   'Screening': '#42a5f5',
-  'Interview': '#ab47bc',
-  'Offered': '#66bb6a',
+  'Interview': '#ab47bc', 
+  'Offer': '#66bb6a',      // Fixed: Changed from 'Offered' to 'Offer' to match backend
   'Hired': '#2e7d32',
   'Rejected': '#ef5350',
+  'New': '#ff9800',        // Keep as fallback for any remaining 'New' status
   'Withdrawn': '#78909c',
 };
 

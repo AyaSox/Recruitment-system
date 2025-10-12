@@ -6,7 +6,7 @@ namespace ATSRecruitSys.Server.DTOs
         public int TotalJobs { get; set; }
         public int ActiveJobs { get; set; }
         public int TotalApplications { get; set; }
-        public int NewApplications { get; set; }
+        public int NewApplications { get; set; } // Represents "Applied" status applications
         public int ScreeningApplications { get; set; }
         public int InterviewApplications { get; set; }
         public int PendingApprovalJobs { get; set; }

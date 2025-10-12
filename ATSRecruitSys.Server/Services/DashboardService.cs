@@ -25,8 +25,8 @@ namespace ATSRecruitSys.Server.Services
                 .CountAsync();
                 
             var totalApplications = await _context.JobApplications.CountAsync();
-            var newApplications = await _context.JobApplications
-                .Where(a => a.Status == "New")
+            var appliedApplications = await _context.JobApplications
+                .Where(a => a.Status == "Applied")
                 .CountAsync();
             
             var screeningApplications = await _context.JobApplications
@@ -42,7 +42,7 @@ namespace ATSRecruitSys.Server.Services
                 TotalJobs = totalJobs,
                 ActiveJobs = activeJobs,
                 TotalApplications = totalApplications,
-                NewApplications = newApplications,
+                NewApplications = appliedApplications, // Fixed: Now tracks "Applied" status
                 ScreeningApplications = screeningApplications,
                 InterviewApplications = interviewApplications,
                 PendingApprovalJobs = pendingApprovalJobs
