@@ -3,7 +3,6 @@ import { Box, Button, Container, Typography, Paper } from '@mui/material';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import HomeIcon from '@mui/icons-material/Home';
-import { useNavigate } from 'react-router-dom';
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -67,11 +66,9 @@ interface ErrorFallbackProps {
 }
 
 function ErrorFallback({ error, onReset }: ErrorFallbackProps) {
-  const navigate = useNavigate();
-
   const handleGoHome = () => {
     onReset();
-    navigate('/');
+    window.location.href = '/';
   };
 
   const handleReload = () => {

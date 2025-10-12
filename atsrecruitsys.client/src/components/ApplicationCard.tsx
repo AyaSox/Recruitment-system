@@ -1,7 +1,7 @@
 import React from 'react';
 import { Paper, Typography, Box, Button, Grid, Chip, Avatar, Divider } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { Application } from '../types';
+import { Application, ApplicantSkill } from '../types';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 
@@ -56,12 +56,22 @@ const ApplicationCard: React.FC<ApplicationCardProps> = React.memo(
     };
 
     // Safely get the most recent status change date and who changed it
-    const latestStatusChange = application.statusHistory && application.statusHistory.length > 0 
+    const latestStatusChange = application.statusHistory && Array.isArray(application.statusHistory) && application.statusHistory.length > 0 
       ? application.statusHistory[0] 
       : null;
 
-    // Safely handle skills array
-    const skills = application.skills || [];
+    // Safely handle skills array - skills might be a JSON string from backend
+    let skills: ApplicantSkill[] = [];
+    try {
+      if (Array.isArray(application.skills)) {
+        skills = application.skills;
+      } else if (typeof application.skills === 'string' && application.skills) {
+        skills = JSON.parse(application.skills);
+      }
+    } catch (e) {
+      console.warn('Failed to parse skills:', e);
+      skills = [];
+    }
 
     // Get applicant initials safely
     const getInitials = (name: string) => {
