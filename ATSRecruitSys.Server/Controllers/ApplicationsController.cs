@@ -273,6 +273,30 @@ namespace ATSRecruitSys.Server.Controllers
             }
         }
 
+        /// <summary>
+        /// Fix existing applications with "New" status by updating them to "Applied" (Admin only)
+        /// </summary>
+        [HttpPost("fix-new-status")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult> FixNewStatusApplications()
+        {
+            try
+            {
+                var fixedCount = await _applicationService.UpdateNewStatusToAppliedAsync();
+                
+                return Ok(new
+                {
+                    success = true,
+                    message = $"Successfully updated {fixedCount} applications from 'New' to 'Applied' status. These applications will now appear in the Application Funnel.",
+                    fixedCount = fixedCount
+                });
+            }
+            catch (Exception ex)
+            {
+                return HandleException(ex, "Error fixing application statuses");
+            }
+        }
+
         private string GetContentType(string fileName)
         {
             var extension = Path.GetExtension(fileName).ToLowerInvariant();

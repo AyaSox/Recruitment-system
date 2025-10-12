@@ -148,7 +148,7 @@ namespace ATSRecruitSys.Server.Services
             {
                 JobId = dto.JobId,
                 ApplicantId = externalUserId,
-                Status = "New",
+                Status = "Applied", // Fixed: Use "Applied" to show in funnel
                 StatusUpdatedDate = DateTime.UtcNow,
                 ResumeFilePath = resumePath,
                 CoverLetter = dto.Message, // Use message as cover letter
@@ -245,7 +245,7 @@ namespace ATSRecruitSys.Server.Services
             {
                 JobId = dto.JobId,
                 ApplicantId = userId,
-                Status = "New",
+                Status = "Applied", // Fixed: Use "Applied" to show in funnel
                 StatusUpdatedDate = DateTime.UtcNow,
                 ResumeFilePath = resumePath,
                 CoverLetter = dto.CoverLetter,
@@ -412,6 +412,23 @@ namespace ATSRecruitSys.Server.Services
                 .ToListAsync();
 
             return statusCounts;
+        }
+
+        public async Task<int> UpdateNewStatusToAppliedAsync()
+        {
+            var applicationsWithNewStatus = await _context.JobApplications
+                .Where(a => a.Status == "New")
+                .ToListAsync();
+
+            foreach (var application in applicationsWithNewStatus)
+            {
+                application.Status = "Applied";
+                application.StatusUpdatedDate = DateTime.UtcNow;
+            }
+
+            await _context.SaveChangesAsync();
+            
+            return applicationsWithNewStatus.Count;
         }
 
         // Helper methods to map entities to DTOs
