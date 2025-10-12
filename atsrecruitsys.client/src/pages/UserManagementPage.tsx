@@ -24,6 +24,8 @@ import {
   Alert,
   IconButton,
   Tooltip,
+  Snackbar,
+  Alert as MuiAlert,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
@@ -65,8 +67,14 @@ const UserManagementPage: React.FC = () => {
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+
+  const showSuccessMessage = (message: string) => {
+    setSuccessMessage(message);
+    setTimeout(() => setSuccessMessage(null), 4000);
+  };
 
   const [newUser, setNewUser] = useState<NewUserForm>({
     email: '',
@@ -204,7 +212,7 @@ const UserManagementPage: React.FC = () => {
       });
 
       if (response.data.isSuccess) {
-        setSuccess(`User ${newUser.email} created successfully with ${newUser.role} role!`);
+        showSuccessMessage(`? User ${newUser.email} created successfully with ${newUser.role} role!`);
         handleCloseDialog();
         fetchUsers();
       } else {
@@ -250,7 +258,7 @@ const UserManagementPage: React.FC = () => {
         });
       }
 
-      setSuccess('User updated successfully!');
+      showSuccessMessage('? User updated successfully!');
       handleCloseEditDialog();
       fetchUsers();
     } catch (err: any) {
@@ -268,7 +276,7 @@ const UserManagementPage: React.FC = () => {
       const response = await api.delete(`/api/auth/users/${userToDelete.id}`);
       
       if (response.data.isSuccess) {
-        setSuccess(`User ${userToDelete.email} deleted successfully!`);
+        showSuccessMessage(`? User ${userToDelete.email} deleted successfully!`);
         handleCloseDeleteDialog();
         fetchUsers();
       } else {
@@ -529,6 +537,30 @@ const UserManagementPage: React.FC = () => {
             </Button>
           </DialogActions>
         </Dialog>
+
+        {/* Success Message Snackbar */}
+        <Snackbar
+          open={!!successMessage}
+          autoHideDuration={4000}
+          onClose={() => setSuccessMessage(null)}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        >
+          <MuiAlert
+            elevation={6}
+            variant="filled"
+            severity="success"
+            onClose={() => setSuccessMessage(null)}
+            sx={{ 
+              minWidth: '300px',
+              fontSize: '1rem',
+              '& .MuiAlert-message': {
+                fontSize: '0.95rem'
+              }
+            }}
+          >
+            {successMessage}
+          </MuiAlert>
+        </Snackbar>
       </Container>
     </Layout>
   );
