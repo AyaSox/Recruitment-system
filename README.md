@@ -15,24 +15,24 @@ A full-stack Applicant Tracking System built with .NET 8 (Web API) and React (Ty
 
 ```
 ATSRecruitSys/
-?? ATSRecruitSys.Server/           .NET 8 Web API
-?  ?? Controllers/                 API endpoints
-?  ?? Services/                    Business logic
-?  ?? Models/                      Data models
-?  ?? DTOs/                        Data transfer objects
-?  ?? Data/                        EF Core DbContext
-?  ?? Migrations/                  Database migrations
-?
-?? atsrecruitsys.client/           React TypeScript frontend
-?  ?? src/
-?  ?  ?? components/
-?  ?  ?? pages/
-?  ?  ?? services/
-?  ?  ?? context/
-?  ?  ?? types/
-?  ?? public/
-?
-?? screenshots/
+- ATSRecruitSys.Server/            .NET 8 Web API
+  - Controllers/                   API endpoints
+  - Services/                      Business logic
+  - Models/                        Data models
+  - DTOs/                          Data transfer objects
+  - Data/                          EF Core DbContext
+  - Migrations/                    Database migrations
+
+- atsrecruitsys.client/            React TypeScript frontend
+  - src/
+    - components/
+    - pages/
+    - services/
+    - context/
+    - types/
+  - public/
+
+- screenshots/                     Documentation screenshots
 ```
 
 ## Getting Started
@@ -60,6 +60,17 @@ npm install
 npm run dev
 ```
 App: http://localhost:5173
+
+## Screenshots
+
+Selected screenshots from the `screenshots` folder (if present):
+
+- Dashboard: [screenshots/09-admin-dashboard.png](screenshots/09-admin-dashboard.png)
+- Jobs page (public): [screenshots/06-jobs-page-public.png](screenshots/06-jobs-page-public.png)
+- Applications management: [screenshots/10-applications-management.png](screenshots/10-applications-management.png)
+- User management: [screenshots/11-user-management-page.png](screenshots/11-user-management-page.png)
+
+Note: If an image link shows as not found, add the corresponding PNG to the `screenshots` folder or update the file name here.
 
 ## Sample Accounts
 
