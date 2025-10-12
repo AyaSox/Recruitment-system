@@ -294,6 +294,21 @@ const JobDetailsPage: React.FC = () => {
             <Typography paragraph sx={{ fontSize: '1.1rem', lineHeight: 1.7, mb: 4 }} style={{ whiteSpace: 'pre-line' }}>
               {job.description}
             </Typography>
+
+            {/* Employment Equity Position Notice */}
+            {job.isEmploymentEquityPosition && (
+              <Alert severity="info" sx={{ mb: 3 }}>
+                <Typography variant="body2">
+                  <strong>Employment Equity Position:</strong> This position is designated as an Employment Equity position 
+                  in accordance with South African Employment Equity legislation and our company's Employment Equity plan.
+                  {job.employmentEquityNotes && (
+                    <Box component="span" display="block" mt={1}>
+                      {job.employmentEquityNotes}
+                    </Box>
+                  )}
+                </Typography>
+              </Alert>
+            )}
           </Paper>
         </Grid>
 

@@ -33,11 +33,14 @@ export interface Job extends BaseJob {
   description: string;
   createdByName: string;
   timelineNote: string;
+  isEmploymentEquityPosition?: boolean;
+  employmentEquityNotes?: string;
 }
 
 // JobSummary is the same as BaseJob - no extension needed
 export interface JobSummary extends BaseJob {
   timelineNote: string;
+  isEmploymentEquityPosition?: boolean;
 }
 
 export interface CreateJobRequest {
@@ -51,6 +54,8 @@ export interface CreateJobRequest {
   salaryRangeMin?: number;
   salaryRangeMax?: number;
   currency: string;
+  isEmploymentEquityPosition?: boolean;
+  employmentEquityNotes?: string;
 }
 
 export interface UpdateJobRequest {
@@ -66,6 +71,8 @@ export interface UpdateJobRequest {
   salaryRangeMin?: number;
   salaryRangeMax?: number;
   currency: string;
+  isEmploymentEquityPosition?: boolean;
+  employmentEquityNotes?: string;
 }
 
 export interface JobFilters {
