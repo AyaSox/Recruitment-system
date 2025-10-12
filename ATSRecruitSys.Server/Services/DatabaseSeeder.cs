@@ -273,50 +273,162 @@ namespace ATSRecruitSys.Server.Services
                 return;
             }
 
-            // Get first two jobs to apply to
-            var jobs = await _context.Jobs.Take(2).ToListAsync();
+            // Get all available jobs
+            var jobs = await _context.Jobs.ToListAsync();
             if (!jobs.Any())
             {
                 _logger.LogWarning("No jobs found, cannot seed applications");
                 return;
             }
 
-            var sampleApplications = new[]
+            // Create applications with different statuses to populate all funnel stages
+            var sampleApplications = new List<JobApplication>();
+
+            // Applied status (2 applications)
+            if (jobs.Count > 0)
             {
-                new JobApplication
+                sampleApplications.Add(new JobApplication
                 {
                     JobId = jobs[0].Id,
+                    ApplicantId = applicant.Id,
+                    Status = "Applied",
+                    AppliedDate = DateTime.UtcNow.AddDays(-1),
+                    StatusUpdatedDate = DateTime.UtcNow.AddDays(-1),
+                    ResumeFilePath = "Uploads/Resumes/sample_resume_applied_1.pdf",
+                    CoverLetter = "I am very interested in this position and believe my skills would be a great fit.",
+                    ApplicantNotes = $"Phone: {applicant.PhoneNumber}\nNotice Period: Immediate\nAvailable to start ASAP",
+                    RecruiterNotes = "Application just received. Needs initial review.",
+                    Skills = "[\"C#\", \".NET Core\", \"React\"]",
+                    TimelineNoteSent = true
+                });
+            }
+
+            if (jobs.Count > 1)
+            {
+                sampleApplications.Add(new JobApplication
+                {
+                    JobId = jobs[1].Id,
+                    ApplicantId = applicant.Id,
+                    Status = "Applied",
+                    AppliedDate = DateTime.UtcNow.AddHours(-12),
+                    StatusUpdatedDate = DateTime.UtcNow.AddHours(-12),
+                    ResumeFilePath = "Uploads/Resumes/sample_resume_applied_2.pdf",
+                    CoverLetter = "I have extensive experience in this field and would love to contribute to your team.",
+                    ApplicantNotes = $"Phone: {applicant.PhoneNumber}\nNotice Period: 2 weeks",
+                    RecruiterNotes = "New application. Awaiting CV review.",
+                    Skills = "[\"HR Management\", \"Recruitment\", \"Employee Relations\"]",
+                    TimelineNoteSent = true
+                });
+            }
+
+            // Screening status (1 application)
+            if (jobs.Count > 2)
+            {
+                sampleApplications.Add(new JobApplication
+                {
+                    JobId = jobs[2].Id,
                     ApplicantId = applicant.Id,
                     Status = "Screening",
                     AppliedDate = DateTime.UtcNow.AddDays(-5),
                     StatusUpdatedDate = DateTime.UtcNow.AddDays(-3),
-                    ResumeFilePath = "Uploads/Resumes/sample_resume_1.pdf",
-                    CoverLetter = "I am excited to apply for this position. I have extensive experience in software development and would love to join your team.",
-                    ApplicantNotes = $"Phone: {applicant.PhoneNumber}\nNotice Period: 1 month\nAvailable immediately",
-                    RecruiterNotes = "Strong technical background. Reviewed CV - excellent qualifications. Scheduled for technical interview next week.",
-                    Skills = "[\"C#\", \".NET Core\", \"SQL Server\"]",
+                    ResumeFilePath = "Uploads/Resumes/sample_resume_screening.pdf",
+                    CoverLetter = "I am excited to apply for this position. My background aligns well with your requirements.",
+                    ApplicantNotes = $"Phone: {applicant.PhoneNumber}\nNotice Period: 1 month\nAvailable for interviews",
+                    RecruiterNotes = "CV reviewed - good qualifications. Scheduled for phone screening on Friday.",
+                    Skills = "[\"Marketing\", \"Digital Marketing\", \"Social Media\"]",
                     TimelineNoteSent = true
-                },
-                new JobApplication
+                });
+            }
+
+            // Interview status (2 applications)
+            if (jobs.Count > 3)
+            {
+                sampleApplications.Add(new JobApplication
                 {
-                    JobId = jobs[1].Id,
+                    JobId = jobs[3].Id,
                     ApplicantId = applicant.Id,
-                    Status = "New",
-                    AppliedDate = DateTime.UtcNow.AddDays(-2),
+                    Status = "Interview",
+                    AppliedDate = DateTime.UtcNow.AddDays(-10),
                     StatusUpdatedDate = DateTime.UtcNow.AddDays(-2),
-                    ResumeFilePath = "Uploads/Resumes/sample_resume_2.pdf",
-                    CoverLetter = "I believe my skills align perfectly with this role and I would be a great addition to your team.",
-                    ApplicantNotes = $"Phone: {applicant.PhoneNumber}\nNotice Period: 2 weeks\nEager to start",
-                    RecruiterNotes = "Application received. CV looks promising. Will review in detail and contact for screening interview.",
-                    Skills = "[\"HR Management\", \"Recruitment\"]",
+                    ResumeFilePath = "Uploads/Resumes/sample_resume_interview_1.pdf",
+                    CoverLetter = "I am passionate about this role and confident I can make an immediate impact.",
+                    ApplicantNotes = $"Phone: {applicant.PhoneNumber}\nNotice Period: 1 month\nPreferred interview times: Mornings",
+                    RecruiterNotes = "Passed phone screening. Technical interview scheduled for next Tuesday. Strong candidate.",
+                    Skills = "[\"Financial Analysis\", \"Excel\", \"SAP\"]",
                     TimelineNoteSent = true
-                }
-            };
+                });
+            }
+
+            if (jobs.Count > 4)
+            {
+                sampleApplications.Add(new JobApplication
+                {
+                    JobId = jobs[4].Id,
+                    ApplicantId = applicant.Id,
+                    Status = "Interview",
+                    AppliedDate = DateTime.UtcNow.AddDays(-8),
+                    StatusUpdatedDate = DateTime.UtcNow.AddDays(-1),
+                    ResumeFilePath = "Uploads/Resumes/sample_resume_interview_2.pdf",
+                    CoverLetter = "My experience makes me an ideal candidate for this position.",
+                    ApplicantNotes = $"Phone: {applicant.PhoneNumber}\nNotice Period: 2 weeks\nFlexible with interview times",
+                    RecruiterNotes = "Completed first interview - very positive. Second interview with team lead scheduled.",
+                    Skills = "[\"Customer Service\", \"Communication\", \"Problem Solving\"]",
+                    TimelineNoteSent = true
+                });
+            }
+
+            // Offer status (1 application) - reuse job if needed
+            sampleApplications.Add(new JobApplication
+            {
+                JobId = jobs[0].Id,
+                ApplicantId = applicant.Id,
+                Status = "Offer",
+                AppliedDate = DateTime.UtcNow.AddDays(-15),
+                StatusUpdatedDate = DateTime.UtcNow.AddDays(-1),
+                ResumeFilePath = "Uploads/Resumes/sample_resume_offer.pdf",
+                CoverLetter = "I am thrilled at the opportunity to join your organization.",
+                ApplicantNotes = $"Phone: {applicant.PhoneNumber}\nNotice Period: 1 month\nNegotiating start date",
+                RecruiterNotes = "Offer extended. Candidate is reviewing terms. Expected response by end of week.",
+                Skills = "[\"Project Management\", \"Leadership\", \"Agile\"]",
+                TimelineNoteSent = true
+            });
+
+            // Hired status (1 application) - reuse job if needed
+            sampleApplications.Add(new JobApplication
+            {
+                JobId = jobs[Math.Min(1, jobs.Count - 1)].Id,
+                ApplicantId = applicant.Id,
+                Status = "Hired",
+                AppliedDate = DateTime.UtcNow.AddDays(-30),
+                StatusUpdatedDate = DateTime.UtcNow.AddDays(-5),
+                ResumeFilePath = "Uploads/Resumes/sample_resume_hired.pdf",
+                CoverLetter = "I am excited to bring my skills to your company.",
+                ApplicantNotes = $"Phone: {applicant.PhoneNumber}\nNotice Period: 1 month\nStart date: {DateTime.UtcNow.AddDays(15):yyyy-MM-dd}",
+                RecruiterNotes = "Offer accepted! Start date confirmed. Onboarding documents sent.",
+                Skills = "[\"Business Analysis\", \"SQL\", \"Reporting\"]",
+                TimelineNoteSent = true
+            });
+
+            // Rejected status (1 application) - reuse job if needed
+            sampleApplications.Add(new JobApplication
+            {
+                JobId = jobs[Math.Min(2, jobs.Count - 1)].Id,
+                ApplicantId = applicant.Id,
+                Status = "Rejected",
+                AppliedDate = DateTime.UtcNow.AddDays(-20),
+                StatusUpdatedDate = DateTime.UtcNow.AddDays(-10),
+                ResumeFilePath = "Uploads/Resumes/sample_resume_rejected.pdf",
+                CoverLetter = "I would like to be considered for this opportunity.",
+                ApplicantNotes = $"Phone: {applicant.PhoneNumber}\nNotice Period: 1 month",
+                RecruiterNotes = "Does not meet minimum requirements. Sent rejection email.",
+                Skills = "[\"Sales\", \"Negotiation\"]",
+                TimelineNoteSent = true
+            });
 
             _context.JobApplications.AddRange(sampleApplications);
             await _context.SaveChangesAsync();
 
-            _logger.LogInformation($"Created {sampleApplications.Length} sample applications with recruiter notes");
+            _logger.LogInformation($"Created {sampleApplications.Count} sample applications across all funnel stages (Applied, Screening, Interview, Offer, Hired, Rejected)");
         }
     }
 }

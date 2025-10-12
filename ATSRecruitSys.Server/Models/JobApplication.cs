@@ -25,7 +25,7 @@ namespace ATSRecruitSys.Server.Models
         
         [Required]
         [StringLength(30)]
-        public string Status { get; set; } = "New"; // New, Screening, Interview, Offer, Hired, Rejected
+        public string Status { get; set; } = "Applied"; // Applied, Screening, Interview, Offer, Hired, Rejected
         
         public DateTime StatusUpdatedDate { get; set; } = DateTime.UtcNow;
         

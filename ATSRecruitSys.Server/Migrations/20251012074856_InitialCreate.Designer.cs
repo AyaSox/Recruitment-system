@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ATSRecruitSys.Server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251012062116_PostgreSQLInitialCreate")]
-    partial class PostgreSQLInitialCreate
+    [Migration("20251012074856_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
