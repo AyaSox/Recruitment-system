@@ -32,6 +32,16 @@ else
     // Parse Railway/Heroku PostgreSQL URL format (postgres:// or postgresql://) if needed
     connectionString = ConvertPostgresUrlToNpgsql(connectionString);
 
+    // Log safe DB target details (no secrets)
+    try
+    {
+        var diag = GetSafeDbInfo(connectionString);
+        var logger = LoggerFactory.Create(b => b.AddConsole()).CreateLogger("Startup");
+        logger.LogInformation("Database config -> Provider: {Provider}, Host: {Host}, Port: {Port}, SSL Mode: {Ssl}, Internal: {Internal}",
+            diag.Provider, diag.Host, diag.Port, diag.SslMode, diag.Internal);
+    }
+    catch { /* best-effort diagnostics only */ }
+
     // Configure database provider based on connection string
     builder.Services.AddDbContext<ApplicationDbContext>(options =>
     {
@@ -204,8 +214,8 @@ using (var scope = app.Services.CreateScope())
         
         logger.LogInformation("Starting database initialization...");
         
-        // Check if we can connect to the database
-        var canConnect = await context.Database.CanConnectAsync();
+        // Wait/retry for database to be reachable (helps when DB starts slower than app)
+        var canConnect = await WaitForDatabaseAsync(context, logger, maxAttempts: 12, delaySeconds: 5);
         if (!canConnect)
         {
             logger.LogWarning("Cannot connect to database. Skipping migrations and seeding.");
@@ -220,9 +230,16 @@ using (var scope = app.Services.CreateScope())
             // Apply pending migrations (only for real databases, not in-memory)
             if (!context.Database.IsInMemory())
             {
-                logger.LogInformation("Applying database migrations...");
-                await context.Database.MigrateAsync();
-                logger.LogInformation("Database migrations applied successfully");
+                logger.LogInformation("Applying database migrations (with retry)...");
+                var migrated = await TryMigrateWithRetryAsync(context, logger, maxAttempts: 5, delaySeconds: 5);
+                if (migrated)
+                {
+                    logger.LogInformation("Database migrations applied successfully");
+                }
+                else
+                {
+                    logger.LogWarning("Database migrations could not be applied after retries.");
+                }
             }
             else
             {
@@ -316,4 +333,68 @@ static string ConvertPostgresUrlToNpgsql(string raw)
     sb.Append($"Host={host};Port={port};Database={database};Username={username};Password={password};");
     sb.Append($"SSL Mode={sslMode};Trust Server Certificate={trustServerCert}");
     return sb.ToString();
+}
+
+// Helper: best-effort safe diagnostics for connection string (no secrets)
+static (string Provider, string Host, string Port, string SslMode, bool Internal) GetSafeDbInfo(string cs)
+{
+    string provider = cs.Contains("Host=") || cs.Contains("Username=") ? "PostgreSQL" : cs.Contains("Server=") ? "SQLServer" : "Unknown";
+    string host = FindVal(cs, "Host") ?? FindVal(cs, "Server") ?? "?";
+    string port = FindVal(cs, "Port") ?? (provider == "SQLServer" ? (FindVal(cs, "PortNumber") ?? "1433") : "5432");
+    string ssl = FindVal(cs, "SSL Mode") ?? FindVal(cs, "SslMode") ?? "?";
+    bool internalHost = host.EndsWith(".internal", StringComparison.OrdinalIgnoreCase) || host.EndsWith(".railway.internal", StringComparison.OrdinalIgnoreCase) || host == "localhost";
+    return (provider, host, port, ssl, internalHost);
+
+    static string? FindVal(string cs, string key)
+    {
+        foreach (var part in cs.Split(';', StringSplitOptions.RemoveEmptyEntries))
+        {
+            var kv = part.Split('=', 2);
+            if (kv.Length == 2 && kv[0].Trim().Equals(key, StringComparison.OrdinalIgnoreCase))
+                return kv[1].Trim();
+        }
+        return null;
+    }
+}
+
+// Helper: retry database connectivity
+static async Task<bool> WaitForDatabaseAsync(DbContext context, ILogger logger, int maxAttempts = 10, int delaySeconds = 3)
+{
+    for (var attempt = 1; attempt <= maxAttempts; attempt++)
+    {
+        try
+        {
+            if (await context.Database.CanConnectAsync())
+            {
+                if (attempt > 1)
+                    logger.LogInformation("Database became available after {Attempts} attempts", attempt);
+                return true;
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Database connection attempt {Attempt}/{Max} failed", attempt, maxAttempts);
+        }
+        await Task.Delay(TimeSpan.FromSeconds(delaySeconds));
+    }
+    return false;
+}
+
+// Helper: retry migrations (handles transient connection failures)
+static async Task<bool> TryMigrateWithRetryAsync(DbContext context, ILogger logger, int maxAttempts = 5, int delaySeconds = 5)
+{
+    for (var attempt = 1; attempt <= maxAttempts; attempt++)
+    {
+        try
+        {
+            await context.Database.MigrateAsync();
+            return true;
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Migration attempt {Attempt}/{Max} failed", attempt, maxAttempts);
+        }
+        await Task.Delay(TimeSpan.FromSeconds(delaySeconds));
+    }
+    return false;
 }
