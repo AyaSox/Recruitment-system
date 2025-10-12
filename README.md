@@ -71,19 +71,19 @@ App: http://localhost:5173
 Below images are loaded directly from the `screenshots` folder. If any image does not render, add the matching file into the folder or update the name here.
 
 ### Admin Dashboard
-![Admin Dashboard](screenshots/09-admin-dashboard.png)
+![Admin Dashboard](screenshots/Dashboard.PNG)
 
 ### Jobs (Public View)
-![Jobs Page - Public](screenshots/06-jobs-page-public.png)
+![Jobs Page - Public](screenshots/Homepage.PNG)
 
 ### Applications Management
-![Applications Management](screenshots/10-applications-management.png)
+![Applications Management](screenshots/Applications%20Management.PNG)
 
 ### User Management
-![User Management](screenshots/11-user-management-page.png)
+![User Management](screenshots/User%20Management%20Overview.PNG)
 
 ### Reports
-![Reports Page](screenshots/12-reports-page.png)
+![Reports Page](screenshots/Reports%20Overview.PNG)
 
 ## Sample Accounts
 
