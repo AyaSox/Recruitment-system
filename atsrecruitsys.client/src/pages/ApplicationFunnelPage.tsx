@@ -295,7 +295,7 @@ const ApplicationFunnelPage: React.FC = () => {
 
       // Show success message
       setSuccessMessage(
-        `${draggedApplication.applicantName} moved to ${targetStage.title} successfully!`
+        `? ${draggedApplication.applicantName} moved to ${targetStage.title} successfully!`
       );
 
       // Refresh applications
@@ -326,10 +326,10 @@ const ApplicationFunnelPage: React.FC = () => {
       
       if (application && targetStage) {
         setSuccessMessage(
-          `${application.applicantName} status updated to ${targetStage.title} successfully!`
+          `? ${application.applicantName} status updated to ${targetStage.title} successfully!`
         );
       } else {
-        setSuccessMessage('Application status updated successfully!');
+        setSuccessMessage('? Application status updated successfully!');
       }
       
       await fetchApplications();
