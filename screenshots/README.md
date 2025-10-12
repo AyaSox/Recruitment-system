@@ -1,27 +1,27 @@
 # Screenshots
 
-Below are representative screenshots of key areas of the ATS Recruitment System. Images are located under the `screenshots/` folder.
+Below images are loaded directly from the `screenshots` folder. If any image does not render, add the matching file into the folder or update the name here.
 
 ## Admin Dashboard
 ![Admin Dashboard](Dashboard.PNG)
 
-## Jobs (Public View)
+## Jobs (Public View)  
 ![Jobs Page - Public](Homepage.PNG)
+
+## Applications Management
+![Applications Management](Applications%20Management.PNG)
+
+## User Management
+![User Management](User%20Management%20Overview.PNG)
+
+## Reports
+![Reports](Reports%20Overview.PNG)
 
 ## Job Application Form
 ![Job Application](Job%20Application.PNG)
 
 ## Job Creation (Admin)
 ![Job Creation Form](Job%20Creation%20Form.PNG)
-
-## Applications Management
-![Applications Management](Applications%20Management.PNG)
-
-## User Management Page
-![User Management Overview](User%20Management%20Overview.PNG)
-
-## Reports Page
-![Reports Overview](Reports%20Overview.PNG)
 
 ## Application Funnel View
 ![Application Funnel](Application%20Funnel.PNG)
@@ -48,7 +48,3 @@ Below are representative screenshots of key areas of the ATS Recruitment System.
 
 ### Dark Theme  
 ![Theme Dark](Theme%20Dark.PNG)
-
----
-
-**Note:** All images are loaded directly from the screenshots folder. If an image doesn't display, check if the file exists in the folder or update the filename reference here.
