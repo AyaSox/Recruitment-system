@@ -11,9 +11,8 @@ using Microsoft.OpenApi.Models;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-// Try to get connection string from environment variable first (for Railway, Heroku, etc.)
-var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL") 
-    ?? builder.Configuration.GetConnectionString("DefaultConnection");
+// Resolve connection string robustly for Railway/containers
+var (connectionString, source) = ResolveConnectionString(builder.Configuration);
 
 // Handle empty or missing connection string
 if (string.IsNullOrWhiteSpace(connectionString))
@@ -37,6 +36,7 @@ else
     {
         var diag = GetSafeDbInfo(connectionString);
         var logger = LoggerFactory.Create(b => b.AddConsole()).CreateLogger("Startup");
+        logger.LogInformation("Database source: {Source}", source);
         logger.LogInformation("Database config -> Provider: {Provider}, Host: {Host}, Port: {Port}, SSL Mode: {Ssl}, Internal: {Internal}",
             diag.Provider, diag.Host, diag.Port, diag.SslMode, diag.Internal);
     }
@@ -333,6 +333,46 @@ static string ConvertPostgresUrlToNpgsql(string raw)
     sb.Append($"Host={host};Port={port};Database={database};Username={username};Password={password};");
     sb.Append($"SSL Mode={sslMode};Trust Server Certificate={trustServerCert}");
     return sb.ToString();
+}
+
+// Resolve connection string from multiple sources with sane fallbacks
+static (string Value, string Source) ResolveConnectionString(IConfiguration config)
+{
+    // 1) Railway/Heroku standard env vars
+    var raw = Environment.GetEnvironmentVariable("DATABASE_URL");
+    if (!string.IsNullOrWhiteSpace(raw))
+        return (raw, "env:DATABASE_URL");
+
+    // 2) Public proxy (Railway)
+    raw = Environment.GetEnvironmentVariable("DATABASE_PUBLIC_URL");
+    if (!string.IsNullOrWhiteSpace(raw))
+        return (raw, "env:DATABASE_PUBLIC_URL");
+
+    // 3) PG* env vars
+    var pgHost = Environment.GetEnvironmentVariable("PGHOST");
+    var pgPort = Environment.GetEnvironmentVariable("PGPORT") ?? "5432";
+    var pgDb   = Environment.GetEnvironmentVariable("PGDATABASE");
+    var pgUser = Environment.GetEnvironmentVariable("PGUSER");
+    var pgPwd  = Environment.GetEnvironmentVariable("PGPASSWORD");
+    if (!string.IsNullOrWhiteSpace(pgHost) && !string.IsNullOrWhiteSpace(pgDb) && !string.IsNullOrWhiteSpace(pgUser))
+    {
+        var npg = $"Host={pgHost};Port={pgPort};Database={pgDb};Username={pgUser};Password={pgPwd};SSL Mode=Disable";
+        return (npg, "env:PG* variables");
+    }
+
+    // 4) appsettings ConnectionStrings:DefaultConnection (ignore placeholder tokens)
+    var cfg = config.GetConnectionString("DefaultConnection");
+    if (!string.IsNullOrWhiteSpace(cfg) && !LooksLikePlaceholder(cfg))
+        return (cfg, "config:ConnectionStrings:DefaultConnection");
+
+    // 5) nothing found -> empty triggers in-memory fallback
+    return (string.Empty, "none");
+
+    static bool LooksLikePlaceholder(string s)
+    {
+        s = s.Trim();
+        return s.StartsWith("#{") || s.Contains("YOUR_CONNECTION_STRING", StringComparison.OrdinalIgnoreCase);
+    }
 }
 
 // Helper: best-effort safe diagnostics for connection string (no secrets)
