@@ -294,63 +294,6 @@ const JobDetailsPage: React.FC = () => {
             <Typography paragraph sx={{ fontSize: '1.1rem', lineHeight: 1.7, mb: 4 }} style={{ whiteSpace: 'pre-line' }}>
               {job.description}
             </Typography>
-
-            {/* Skills Section - No subheading */}
-            {/* Required Skills */}
-            {Array.isArray(job.skills || job.requiredSkills) && (job.skills || job.requiredSkills || []).filter((skill) => skill.isRequired).length > 0 && (
-              <Box mb={3}>
-                <Typography variant="h6" gutterBottom color="primary">
-                  Required Skills
-                </Typography>
-                <Grid container spacing={1} mb={2}>
-                  {(job.skills || job.requiredSkills || [])
-                    .filter((skill) => skill.isRequired)
-                    .map((skill) => (
-                      <Grid item key={skill.skillId}>
-                        <Chip 
-                          label={skill.skillName} 
-                          color="primary" 
-                          variant="filled" 
-                          sx={{ fontWeight: 'bold' }}
-                        />
-                      </Grid>
-                    ))}
-                </Grid>
-              </Box>
-            )}
-
-            {/* Preferred Skills */}
-            {Array.isArray(job.skills || job.requiredSkills) && (job.skills || job.requiredSkills || []).filter((skill) => !skill.isRequired).length > 0 && (
-              <Box mb={3}>
-                <Typography variant="h6" gutterBottom>
-                  Preferred Skills
-                </Typography>
-                <Grid container spacing={1}>
-                  {(job.skills || job.requiredSkills || [])
-                    .filter((skill) => !skill.isRequired)
-                    .map((skill) => (
-                      <Grid item key={skill.skillId}>
-                        <Chip label={skill.skillName} variant="outlined" />
-                      </Grid>
-                    ))}
-                </Grid>
-              </Box>
-            )}
-
-            {/* Employment Equity */}
-            {job.isEmploymentEquityPosition && (
-              <Alert severity="info" sx={{ mb: 3 }}>
-                <Typography variant="body2">
-                  <strong>Employment Equity Position:</strong> This position is designated as an Employment Equity position 
-                  in accordance with our company's Employment Equity plan.
-                  {job.employmentEquityNotes && (
-                    <Box component="span" display="block" mt={1}>
-                      {job.employmentEquityNotes}
-                    </Box>
-                  )}
-                </Typography>
-              </Alert>
-            )}
           </Paper>
         </Grid>
 
@@ -409,7 +352,7 @@ const JobDetailsPage: React.FC = () => {
                       </ListItemIcon>
                       <ListItemText
                         primary="Created By"
-                        secondary={job.createdBy ? `${job.createdBy.firstName} ${job.createdBy.lastName}` : (job.createdByName || 'Unknown')}
+                        secondary={job.createdByName || 'Unknown'}
                       />
                     </ListItem>
                   </>
