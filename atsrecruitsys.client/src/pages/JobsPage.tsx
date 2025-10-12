@@ -23,6 +23,8 @@ import {
   LinearProgress,
   Fade,
   Paper,
+  Snackbar,
+  Alert as MuiAlert,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import WorkIcon from '@mui/icons-material/Work';
@@ -114,6 +116,14 @@ const JobsPage: React.FC = () => {
   const [publishDialogOpen, setPublishDialogOpen] = useState(false);
   const [jobToToggle, setJobToToggle] = useState<{ id: number; isPublished: boolean } | null>(null);
 
+  // Success message state
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  const showSuccessMessage = (message: string) => {
+    setSuccessMessage(message);
+    setTimeout(() => setSuccessMessage(null), 4000);
+  };
+
   // Fix: Use roles array instead of role property
   const isRecruiterOrAdmin = user?.roles?.includes('Recruiter') || user?.roles?.includes('Admin');
   
@@ -202,6 +212,10 @@ const JobsPage: React.FC = () => {
         )
       );
 
+      // Show success message
+      const action = isPublished ? 'published' : 'unpublished';
+      showSuccessMessage(`? Job ${action} successfully!`);
+      
       setError(null);
     } catch (err: any) {
       console.error('Error toggling job publish status:', err);
@@ -223,6 +237,9 @@ const JobsPage: React.FC = () => {
       // Remove the job from local state
       setJobs(prevJobs => prevJobs.filter(job => job.id !== id));
       setTotalCount(prev => prev - 1);
+      
+      // Show success message
+      showSuccessMessage('? Job deleted successfully!');
       
       setError(null);
     } catch (err: any) {
@@ -504,6 +521,30 @@ const JobsPage: React.FC = () => {
             </Button>
           </DialogActions>
         </Dialog>
+
+        {/* Success Message Snackbar */}
+        <Snackbar
+          open={!!successMessage}
+          autoHideDuration={4000}
+          onClose={() => setSuccessMessage(null)}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        >
+          <MuiAlert
+            elevation={6}
+            variant="filled"
+            severity="success"
+            onClose={() => setSuccessMessage(null)}
+            sx={{ 
+              minWidth: '300px',
+              fontSize: '1rem',
+              '& .MuiAlert-message': {
+                fontSize: '0.95rem'
+              }
+            }}
+          >
+            {successMessage}
+          </MuiAlert>
+        </Snackbar>
       </Container>
     </Layout>
   );
