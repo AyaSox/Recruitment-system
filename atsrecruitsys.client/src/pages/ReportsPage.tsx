@@ -132,7 +132,7 @@ const ReportsPage: React.FC = () => {
 
   if (loading) {
     return (
-      <ProtectedRoute roles={['Admin', 'Recruiter']}>
+      <ProtectedRoute roles={['Admin', 'Recruiter', 'HiringManager']}>
         <Layout title="ATS Recruitment System - Reports">
           <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
             <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
@@ -150,7 +150,7 @@ const ReportsPage: React.FC = () => {
   };
 
   return (
-    <ProtectedRoute roles={['Admin', 'Recruiter']}>
+    <ProtectedRoute roles={['Admin', 'Recruiter', 'HiringManager']}>
       <Layout title="ATS Recruitment System - Reports">
         <Container maxWidth="xl" sx={{ mt: 3, mb: 4 }}>
           {/* Modern Header Section */}
