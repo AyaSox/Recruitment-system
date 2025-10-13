@@ -86,7 +86,7 @@ namespace ATSRecruitSys.Server.Controllers
                 return CreatedAtAction(nameof(GetJob), new { id = job.Id }, new
                 {
                     success = true,
-                    message = "Job created successfully.",
+                    message = "Job created and published successfully!",
                     data = job
                 });
             }
@@ -118,7 +118,16 @@ namespace ATSRecruitSys.Server.Controllers
                 // Check authorization: Admin can edit all, others only their own jobs
                 var canEdit = await _jobService.CanUserEditJobAsync(id, userId, IsInRole("Admin"));
                 if (!canEdit)
-                    return Forbid();
+                {
+                    var jobCreator = await _jobService.GetJobCreatorNameAsync(id);
+                    return StatusCode(403, new
+                    {
+                        success = false,
+                        message = IsInRole("Admin") 
+                            ? "You do not have permission to edit this job." 
+                            : $"You can only edit jobs that you created. This job was created by {jobCreator}."
+                    });
+                }
 
                 var job = await _jobService.UpdateJobAsync(dto, userId);
                 
@@ -155,7 +164,16 @@ namespace ATSRecruitSys.Server.Controllers
                 // Check authorization: Admin can publish all, others only their own jobs
                 var canPublish = await _jobService.CanUserEditJobAsync(id, userId, IsInRole("Admin"));
                 if (!canPublish)
-                    return Forbid();
+                {
+                    var jobCreator = await _jobService.GetJobCreatorNameAsync(id);
+                    return StatusCode(403, new
+                    {
+                        success = false,
+                        message = IsInRole("Admin") 
+                            ? "You do not have permission to publish this job." 
+                            : $"You can only publish jobs that you created. This job was created by {jobCreator}."
+                    });
+                }
 
                 var job = await _jobService.PublishJobAsync(id, userId);
                 
@@ -190,7 +208,16 @@ namespace ATSRecruitSys.Server.Controllers
                 // Check authorization: Admin can unpublish all, others only their own jobs
                 var canUnpublish = await _jobService.CanUserEditJobAsync(id, userId, IsInRole("Admin"));
                 if (!canUnpublish)
-                    return Forbid();
+                {
+                    var jobCreator = await _jobService.GetJobCreatorNameAsync(id);
+                    return StatusCode(403, new
+                    {
+                        success = false,
+                        message = IsInRole("Admin") 
+                            ? "You do not have permission to unpublish this job." 
+                            : $"You can only unpublish jobs that you created. This job was created by {jobCreator}."
+                    });
+                }
 
                 var job = await _jobService.UnpublishJobAsync(id, userId);
                 
@@ -225,7 +252,16 @@ namespace ATSRecruitSys.Server.Controllers
                 // Check authorization: Admin can delete all, others only their own jobs
                 var canDelete = await _jobService.CanUserEditJobAsync(id, userId, IsInRole("Admin"));
                 if (!canDelete)
-                    return Forbid();
+                {
+                    var jobCreator = await _jobService.GetJobCreatorNameAsync(id);
+                    return StatusCode(403, new
+                    {
+                        success = false,
+                        message = IsInRole("Admin") 
+                            ? "You do not have permission to delete this job." 
+                            : $"You can only delete jobs that you created. This job was created by {jobCreator}. Please contact an administrator if you need to delete this job."
+                    });
+                }
 
                 var result = await _jobService.DeleteJobAsync(id, userId);
                 

@@ -30,6 +30,10 @@ namespace ATSRecruitSys.Server.DTOs
         public decimal? SalaryRangeMin { get; set; }
         public decimal? SalaryRangeMax { get; set; }
         public string Currency { get; set; } = "ZAR";
+        
+        // Employment Equity fields
+        public bool IsEmploymentEquityPosition { get; set; }
+        public string? EmploymentEquityNotes { get; set; }
     }
 
     public class UpdateJobDto
@@ -64,6 +68,10 @@ namespace ATSRecruitSys.Server.DTOs
         public decimal? SalaryRangeMin { get; set; }
         public decimal? SalaryRangeMax { get; set; }
         public string Currency { get; set; } = "ZAR";
+        
+        // Employment Equity fields
+        public bool IsEmploymentEquityPosition { get; set; }
+        public string? EmploymentEquityNotes { get; set; }
     }
 
     public class JobListDto
@@ -121,6 +129,8 @@ namespace ATSRecruitSys.Server.DTOs
         public string CreatedByName { get; set; } = string.Empty;
         public int ApplicationCount { get; set; }
         public string TimelineNote { get; set; } = string.Empty;
+        public bool IsEmploymentEquityPosition { get; set; }
+        public string? EmploymentEquityNotes { get; set; }
         
         // Display properties
         public string DisplayLocation => Location;

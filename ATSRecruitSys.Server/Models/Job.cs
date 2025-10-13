@@ -43,6 +43,10 @@ namespace ATSRecruitSys.Server.Models
         public decimal? SalaryRangeMax { get; set; }
         public string Currency { get; set; } = "ZAR";
         
+        // Employment Equity fields (South African compliance)
+        public bool IsEmploymentEquityPosition { get; set; } = false;
+        public string? EmploymentEquityNotes { get; set; }
+        
         // Relations
         public string CreatedById { get; set; } = string.Empty;
         public ApplicationUser? CreatedBy { get; set; }

@@ -58,6 +58,8 @@ const validationSchema = yup.object({
     .positive('Maximum salary must be positive')
     .min(yup.ref('salaryRangeMin'), 'Maximum salary must be greater than minimum salary')
     .nullable(),
+  isEmploymentEquityPosition: yup.boolean(),
+  employmentEquityNotes: yup.string().max(500, 'Notes must be 500 characters or less').nullable(),
 });
 
 const JobForm: React.FC<JobFormProps> = ({ job, onSubmit, onCancel, loading = false }) => {
@@ -74,6 +76,8 @@ const JobForm: React.FC<JobFormProps> = ({ job, onSubmit, onCancel, loading = fa
       salaryRangeMin: job?.salaryRangeMin || null,
       salaryRangeMax: job?.salaryRangeMax || null,
       currency: job?.currency || 'ZAR',
+      isEmploymentEquityPosition: job?.isEmploymentEquityPosition || false,
+      employmentEquityNotes: job?.employmentEquityNotes || '',
     },
     validationSchema,
     onSubmit: async (values) => {
@@ -88,6 +92,8 @@ const JobForm: React.FC<JobFormProps> = ({ job, onSubmit, onCancel, loading = fa
         salaryRangeMin: values.salaryRangeMin || undefined,
         salaryRangeMax: values.salaryRangeMax || undefined,
         currency: values.currency,
+        isEmploymentEquityPosition: values.isEmploymentEquityPosition,
+        employmentEquityNotes: values.employmentEquityNotes || undefined,
       };
 
       const jobData: CreateJobRequest | UpdateJobRequest = job
@@ -282,6 +288,54 @@ const JobForm: React.FC<JobFormProps> = ({ job, onSubmit, onCancel, loading = fa
                     />
                   }
                   label="Published"
+                />
+              </Grid>
+            )}
+
+            {/* Employment Equity Information */}
+            <Grid item xs={12}>
+              <Divider sx={{ my: 2 }} />
+              <Typography variant="h6" gutterBottom>
+                Employment Equity (Optional)
+              </Typography>
+              <Alert severity="info" sx={{ mb: 2 }}>
+                <Typography variant="body2">
+                  Designate this position as an Employment Equity position in accordance with South African Employment Equity legislation.
+                </Typography>
+              </Alert>
+            </Grid>
+
+            <Grid item xs={12}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={formik.values.isEmploymentEquityPosition}
+                    onChange={(e) => formik.setFieldValue('isEmploymentEquityPosition', e.target.checked)}
+                    name="isEmploymentEquityPosition"
+                  />
+                }
+                label="This is an Employment Equity Position"
+              />
+            </Grid>
+
+            {formik.values.isEmploymentEquityPosition && (
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  multiline
+                  rows={3}
+                  id="employmentEquityNotes"
+                  name="employmentEquityNotes"
+                  label="Employment Equity Notes (Optional)"
+                  value={formik.values.employmentEquityNotes}
+                  onChange={formik.handleChange}
+                  error={formik.touched.employmentEquityNotes && Boolean(formik.errors.employmentEquityNotes)}
+                  helperText={
+                    formik.touched.employmentEquityNotes && formik.errors.employmentEquityNotes
+                      ? formik.errors.employmentEquityNotes
+                      : 'Provide additional details about the Employment Equity designation for this position'
+                  }
+                  placeholder="e.g., Preference will be given to candidates from designated groups as per our Employment Equity plan"
                 />
               </Grid>
             )}

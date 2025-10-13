@@ -54,13 +54,13 @@ const [createdJobId, setCreatedJobId] = useState<number | null>(null);
 
   const handleGoToJobs = () => {
     setApprovalDialogOpen(false);
-    notifySuccess('Job created successfully! You can now publish it.');
+    notifySuccess('Job created and published successfully!');
     navigate('/jobs');
   };
 
   const handleCloseDialog = () => {
     setApprovalDialogOpen(false);
-    notifySuccess('Job created successfully! You can now publish it.');
+    notifySuccess('Job created and published successfully!');
   };
 
   return (
@@ -99,7 +99,7 @@ const [createdJobId, setCreatedJobId] = useState<number | null>(null);
           />
         </Paper>
 
-        {/* Admin Approval Confirmation Dialog */}
+        {/* Job Created Confirmation Dialog */}
         <Dialog 
           open={approvalDialogOpen} 
           onClose={handleCloseDialog}
@@ -109,31 +109,17 @@ const [createdJobId, setCreatedJobId] = useState<number | null>(null);
           <DialogTitle sx={{ textAlign: 'center', pt: 3 }}>
             <CheckCircleIcon color="success" sx={{ fontSize: 60, mb: 2 }} />
             <Typography variant="h5" gutterBottom>
-              Job Submitted Successfully!
+              Job Published Successfully!
             </Typography>
           </DialogTitle>
           <DialogContent>
             <Box textAlign="center" px={2}>
-              <Typography variant="h6" gutterBottom color="primary">
-                Job Created Successfully!
-              </Typography>
               <Typography variant="body1" paragraph>
-                Your job posting has been created and is ready to be published.
+                Your job posting has been created and is now live and visible to candidates.
               </Typography>
               <Typography variant="body2" color="text.secondary" paragraph>
-                <strong>Next Steps:</strong>
+                You can view the job details, edit it, or monitor applications from your dashboard.
               </Typography>
-              <Typography variant="body2" color="text.secondary" paragraph sx={{ textAlign: 'left', ml: 2 }}>
-                • Review your job posting details<br/>
-                • Publish it to make it visible to candidates<br/>
-                • Edit or unpublish anytime as needed<br/>
-                • Monitor applications from the dashboard
-              </Typography>
-              <Alert severity="info" sx={{ mt: 2, textAlign: 'left' }}>
-                <Typography variant="body2">
-                  <strong>Note:</strong> Until published, this job will not be visible to external candidates.
-                </Typography>
-              </Alert>
             </Box>
           </DialogContent>
           <DialogActions sx={{ justifyContent: 'space-between', px: 3, pb: 3 }}>

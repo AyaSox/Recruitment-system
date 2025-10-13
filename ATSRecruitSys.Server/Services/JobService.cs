@@ -139,7 +139,9 @@ namespace ATSRecruitSys.Server.Services
                 Currency = job.Currency,
                 CreatedByName = job.CreatedBy != null ? $"{job.CreatedBy.FirstName} {job.CreatedBy.LastName}" : "Unknown",
                 ApplicationCount = job.JobApplications.Count,
-                TimelineNote = job.TimelineNote // Include the 1-month timeline note
+                TimelineNote = job.TimelineNote, // Include the 1-month timeline note
+                IsEmploymentEquityPosition = job.IsEmploymentEquityPosition,
+                EmploymentEquityNotes = job.EmploymentEquityNotes
             };
         }
 
@@ -157,8 +159,10 @@ namespace ATSRecruitSys.Server.Services
                 SalaryRangeMax = dto.SalaryRangeMax,
                 Currency = dto.Currency?.Trim() ?? "ZAR",
                 ClosingDate = dto.ClosingDate,
-                IsPublished = false, // Jobs start as unpublished (can be published immediately)
+                IsPublished = true,  // Jobs are auto-published when created
                 IsApproved = true,   // No approval needed - jobs are auto-approved
+                IsEmploymentEquityPosition = dto.IsEmploymentEquityPosition,
+                EmploymentEquityNotes = dto.EmploymentEquityNotes?.Trim(),
                 CreatedById = userId,
                 PostedDate = DateTime.UtcNow
             };
@@ -217,6 +221,8 @@ namespace ATSRecruitSys.Server.Services
             job.SalaryRangeMax = dto.SalaryRangeMax;
             job.Currency = dto.Currency?.Trim() ?? "ZAR";
             job.ClosingDate = dto.ClosingDate;
+            job.IsEmploymentEquityPosition = dto.IsEmploymentEquityPosition;
+            job.EmploymentEquityNotes = dto.EmploymentEquityNotes?.Trim();
 
             await _context.SaveChangesAsync();
 
@@ -340,6 +346,21 @@ namespace ATSRecruitSys.Server.Services
                 return false;
 
             return job.CreatedById == userId;
+        }
+
+        /// <summary>
+        /// Get the name of the user who created a job
+        /// </summary>
+        public async Task<string> GetJobCreatorNameAsync(int jobId)
+        {
+            var job = await _context.Jobs
+                .Include(j => j.CreatedBy)
+                .FirstOrDefaultAsync(j => j.Id == jobId);
+
+            if (job?.CreatedBy == null)
+                return "Unknown User";
+
+            return $"{job.CreatedBy.FirstName} {job.CreatedBy.LastName}";
         }
 
         // Helper methods

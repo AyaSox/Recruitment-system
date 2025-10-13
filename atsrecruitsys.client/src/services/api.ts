@@ -164,8 +164,10 @@ api.interceptors.response.use(
 
     // Handle 403 Forbidden
     if (error.response?.status === 403) {
+      // Extract custom message from backend if available
+      const customMessage = error.response.data?.message || 'You do not have permission to perform this action.';
       return Promise.reject(
-        new ApiError('You do not have permission to perform this action.', 403, error.response.data)
+        new ApiError(customMessage, 403, error.response.data)
       );
     }
 
