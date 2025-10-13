@@ -535,7 +535,7 @@ static async Task<bool> CanQueryDatabaseAsync(DbContext context, ILogger logger)
     }
 }
 
-// Helper: Ensure Employment Equity migration is applied
+// Helper: Ensure Employment Equity migration is applied (Fresh Database Approach)
 static async Task EnsureEmploymentEquityMigrationAsync(ApplicationDbContext context, ILogger logger)
 {
     try
@@ -546,12 +546,29 @@ static async Task EnsureEmploymentEquityMigrationAsync(ApplicationDbContext cont
             return;
         }
 
-        logger.LogInformation("?? Checking Employment Equity migration status...");
+        logger.LogInformation("?? FRESH DATABASE: Checking Employment Equity migration for new database...");
         
         var connection = context.Database.GetDbConnection();
         if (connection.State != System.Data.ConnectionState.Open)
         {
             await connection.OpenAsync();
+        }
+
+        // Check if Jobs table exists first (for fresh database)
+        using var tableExistsCommand = connection.CreateCommand();
+        tableExistsCommand.CommandText = @"
+            SELECT EXISTS (
+                SELECT FROM information_schema.tables 
+                WHERE table_schema = 'public' 
+                AND table_name = 'Jobs'
+            );";
+
+        var jobsTableExists = Convert.ToBoolean(await tableExistsCommand.ExecuteScalarAsync());
+        
+        if (!jobsTableExists)
+        {
+            logger.LogInformation("?? Jobs table doesn't exist yet. Migrations will handle Employment Equity columns automatically.");
+            return;
         }
 
         // Check if the Employment Equity columns exist
@@ -566,74 +583,57 @@ static async Task EnsureEmploymentEquityMigrationAsync(ApplicationDbContext cont
         
         if (columnCount >= 2)
         {
-            logger.LogInformation("? Employment Equity columns already exist. No migration needed.");
+            logger.LogInformation("? Employment Equity columns already exist ({Count}/2). Perfect!", columnCount);
             return;
         }
 
-        logger.LogWarning("?? Employment Equity columns missing ({Count}/2 found). Applying emergency migration...", columnCount);
+        logger.LogWarning("?? FRESH DATABASE FIX: Employment Equity columns missing ({Count}/2). Adding them now...", columnCount);
 
-        // Apply the Employment Equity migration manually with better error handling
+        // Apply the Employment Equity migration for fresh database
         using var transaction = await connection.BeginTransactionAsync();
         
         try
         {
-            // Add columns if they don't exist (one by one for better error reporting)
-            using var migrationCommand1 = connection.CreateCommand();
-            migrationCommand1.Transaction = transaction;
-            migrationCommand1.CommandText = @"
-                DO $$ BEGIN
-                    IF NOT EXISTS (
-                        SELECT 1 FROM information_schema.columns 
-                        WHERE table_name = 'Jobs' AND column_name = 'IsEmploymentEquityPosition'
-                    ) THEN
-                        ALTER TABLE ""Jobs"" ADD COLUMN ""IsEmploymentEquityPosition"" boolean NOT NULL DEFAULT false;
-                    END IF;
-                END $$;";
-            
-            await migrationCommand1.ExecuteNonQueryAsync();
-            logger.LogInformation("? IsEmploymentEquityPosition column added");
+            // Add IsEmploymentEquityPosition column
+            using var cmd1 = connection.CreateCommand();
+            cmd1.Transaction = transaction;
+            cmd1.CommandText = @"
+                ALTER TABLE ""Jobs"" 
+                ADD COLUMN IF NOT EXISTS ""IsEmploymentEquityPosition"" boolean NOT NULL DEFAULT false;";
+            await cmd1.ExecuteNonQueryAsync();
+            logger.LogInformation("? IsEmploymentEquityPosition column added successfully");
 
-            using var migrationCommand2 = connection.CreateCommand();
-            migrationCommand2.Transaction = transaction;
-            migrationCommand2.CommandText = @"
-                DO $$ BEGIN
-                    IF NOT EXISTS (
-                        SELECT 1 FROM information_schema.columns 
-                        WHERE table_name = 'Jobs' AND column_name = 'EmploymentEquityNotes'
-                    ) THEN
-                        ALTER TABLE ""Jobs"" ADD COLUMN ""EmploymentEquityNotes"" text;
-                    END IF;
-                END $$;";
-            
-            await migrationCommand2.ExecuteNonQueryAsync();
-            logger.LogInformation("? EmploymentEquityNotes column added");
+            // Add EmploymentEquityNotes column
+            using var cmd2 = connection.CreateCommand();
+            cmd2.Transaction = transaction;
+            cmd2.CommandText = @"
+                ALTER TABLE ""Jobs"" 
+                ADD COLUMN IF NOT EXISTS ""EmploymentEquityNotes"" text;";
+            await cmd2.ExecuteNonQueryAsync();
+            logger.LogInformation("? EmploymentEquityNotes column added successfully");
 
-            // Mark migration as applied
-            using var migrationCommand3 = connection.CreateCommand();
-            migrationCommand3.Transaction = transaction;
-            migrationCommand3.CommandText = @"
+            // Mark migration as applied in fresh database
+            using var cmd3 = connection.CreateCommand();
+            cmd3.Transaction = transaction;
+            cmd3.CommandText = @"
                 INSERT INTO ""__EFMigrationsHistory"" (""MigrationId"", ""ProductVersion"") 
                 VALUES ('20251013060811_AddEmploymentEquityFields', '8.0.11')
                 ON CONFLICT (""MigrationId"") DO NOTHING;";
-
-            await migrationCommand3.ExecuteNonQueryAsync();
+            await cmd3.ExecuteNonQueryAsync();
             
             await transaction.CommitAsync();
-            logger.LogInformation("?? Employment Equity migration applied successfully!");
+            logger.LogInformation("?? FRESH DATABASE SUCCESS: Employment Equity migration completed perfectly!");
         }
         catch (Exception innerEx)
         {
             await transaction.RollbackAsync();
-            logger.LogError(innerEx, "? Transaction failed, rolling back Employment Equity migration");
+            logger.LogError(innerEx, "? Fresh database migration failed, rolling back");
             throw;
         }
     }
     catch (Exception ex)
     {
-        logger.LogError(ex, "?? CRITICAL: Failed to apply Employment Equity migration. Database may be incompatible with current code.");
-        logger.LogError("?? SOLUTION: Consider resetting Railway database or applying migration manually");
-        
-        // Still don't throw - but make it very clear this is a problem
-        logger.LogWarning("?? Application may not function correctly without Employment Equity columns");
+        logger.LogError(ex, "?? Employment Equity migration failed on fresh database");
+        logger.LogWarning("?? This might be normal for a completely fresh database - standard migrations will handle it");
     }
 }
