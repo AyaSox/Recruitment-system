@@ -69,11 +69,11 @@ function App() {
                     <Route path="/jobs/create" element={<CreateJobPage />} />
                     <Route path="/jobs/apply/:id" element={<JobApplyPage />} />
 
-                    {/* Protected Routes - Recruiter & Admin */}
+                    {/* Protected Routes - Admin, Recruiter & HiringManager */}
                     <Route
                       path="/dashboard"
                       element={
-                        <ProtectedRoute roles={['Admin', 'Recruiter']}>
+                        <ProtectedRoute roles={['Admin', 'Recruiter', 'HiringManager']}>
                           <DashboardPage />
                         </ProtectedRoute>
                       }
@@ -82,7 +82,7 @@ function App() {
                     <Route
                       path="/applications"
                       element={
-                        <ProtectedRoute roles={['Admin', 'Recruiter']}>
+                        <ProtectedRoute roles={['Admin', 'Recruiter', 'HiringManager']}>
                           <ApplicationsPage />
                         </ProtectedRoute>
                       }
@@ -91,7 +91,7 @@ function App() {
                     <Route
                       path="/applications/funnel"
                       element={
-                        <ProtectedRoute roles={['Admin', 'Recruiter']}>
+                        <ProtectedRoute roles={['Admin', 'Recruiter', 'HiringManager']}>
                           <ApplicationFunnelPage />
                         </ProtectedRoute>
                       }
@@ -100,7 +100,7 @@ function App() {
                     <Route
                       path="/applications/:id"
                       element={
-                        <ProtectedRoute roles={['Admin', 'Recruiter']}>
+                        <ProtectedRoute roles={['Admin', 'Recruiter', 'HiringManager']}>
                           <ApplicationDetailsPage />
                         </ProtectedRoute>
                       }
@@ -110,7 +110,7 @@ function App() {
                     <Route
                       path="/reports"
                       element={
-                        <ProtectedRoute roles={['Admin', 'Recruiter']}>
+                        <ProtectedRoute roles={['Admin', 'Recruiter', 'HiringManager']}>
                           <ReportsPage />
                         </ProtectedRoute>
                       }

@@ -117,8 +117,8 @@ const JobsPage: React.FC = () => {
 
   const { notifySuccess } = useNotification();
 
-  // Fix: Use roles array instead of role property
-  const isRecruiterOrAdmin = user?.roles?.includes('Recruiter') || user?.roles?.includes('Admin');
+  // Check if user has staff-level access (Admin, Recruiter, or HiringManager)
+  const isStaffUser = user?.roles?.includes('Admin') || user?.roles?.includes('Recruiter') || user?.roles?.includes('HiringManager');
   
   // Determine if this is a public view (external applicants)
   const isPublicView = !user || (!isAdmin() && !isRecruiter() && !isHiringManager());
@@ -329,7 +329,7 @@ const JobsPage: React.FC = () => {
             </Box>
           </Box>
 
-          {isRecruiterOrAdmin && (
+          {isStaffUser && (
             <Button
               variant="contained"
               startIcon={<AddIcon />}
@@ -454,9 +454,9 @@ const JobsPage: React.FC = () => {
                         job={job}
                         isPublicView={isPublicView}
                         onView={handleViewJob}
-                        onEdit={isRecruiterOrAdmin ? handleEditJob : undefined}
-                        onTogglePublish={isRecruiterOrAdmin ? handleTogglePublish : undefined}
-                        onDelete={isRecruiterOrAdmin ? handleDeleteJob : undefined}
+                        onEdit={isStaffUser ? handleEditJob : undefined}
+                        onTogglePublish={isStaffUser ? handleTogglePublish : undefined}
+                        onDelete={isStaffUser ? handleDeleteJob : undefined}
                       />
                     </Grid>
                   ))}
