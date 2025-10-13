@@ -8,7 +8,7 @@ interface ProtectedRouteProps {
 }
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, roles = [] }) => {
-  const { authState, isAdmin, isRecruiter, isApplicant } = useAuth();
+  const { authState, isAdmin, isRecruiter, isHiringManager, isApplicant } = useAuth();
   const location = useLocation();
 
   if (authState.loading) {
@@ -26,6 +26,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, roles 
     const hasRequiredRole = roles.some((role) => {
       if (role === 'Admin') return isAdmin();
       if (role === 'Recruiter') return isRecruiter();
+      if (role === 'HiringManager') return isHiringManager();
       if (role === 'Applicant') return isApplicant();
       return false;
     });
