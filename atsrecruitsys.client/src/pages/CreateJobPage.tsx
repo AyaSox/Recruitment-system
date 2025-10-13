@@ -64,7 +64,7 @@ const [createdJobId, setCreatedJobId] = useState<number | null>(null);
   };
 
   return (
-    <ProtectedRoute roles={['Admin', 'Recruiter']}>
+    <ProtectedRoute roles={['Admin', 'Recruiter', 'HiringManager']}>
       <Layout title="ATS Recruitment System - Create Job">
         <Box mb={4}>
           <Breadcrumbs aria-label="breadcrumb">

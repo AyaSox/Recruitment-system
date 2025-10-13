@@ -110,7 +110,7 @@ const EditJobPage: React.FC = () => {
 
   if (loading) {
     return (
-      <ProtectedRoute roles={['Admin', 'Recruiter']}>
+      <ProtectedRoute roles={['Admin', 'Recruiter', 'HiringManager']}>
         <Layout title="ATS Recruitment System - Edit Job">
           <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
             <CircularProgress />
@@ -122,7 +122,7 @@ const EditJobPage: React.FC = () => {
 
   if (error || !job) {
     return (
-      <ProtectedRoute roles={['Admin', 'Recruiter']}>
+      <ProtectedRoute roles={['Admin', 'Recruiter', 'HiringManager']}>
         <Layout title="ATS Recruitment System - Edit Job">
           <Alert severity="error" sx={{ mb: 4 }}>
             {error || 'Job not found'}
@@ -136,7 +136,7 @@ const EditJobPage: React.FC = () => {
   }
 
   return (
-    <ProtectedRoute roles={['Admin', 'Recruiter']}>
+    <ProtectedRoute roles={['Admin', 'Recruiter', 'HiringManager']}>
       <Layout title={`ATS Recruitment System - Edit ${job.title}`}>
         <Box mb={4}>
           <Breadcrumbs aria-label="breadcrumb">
