@@ -26,7 +26,6 @@ import {
   Download as DownloadIcon,
   TableChart as ExcelIcon,
   CheckCircle as CheckIcon,
-  HourglassEmpty as PendingIcon,
   Insights as InsightsIcon,
 } from '@mui/icons-material';
 import Layout from '../components/Layout';
@@ -356,32 +355,6 @@ const ReportsPage: React.FC = () => {
                           </Card>
                         </Grid>
 
-                        <Grid item xs={12} sm={6} md={3}>
-                          <Card 
-                            sx={{ 
-                              height: '100%',
-                              background: 'linear-gradient(135deg, #ffa726 0%, #ffb74d 100%)',
-                              border: 'none',
-                              position: 'relative',
-                              overflow: 'hidden',
-                            }}
-                          >
-                            <CardContent sx={{ p: 2.5 }}>
-                              <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
-                                <Typography variant="h3" component="div" fontWeight={700} color="white">
-                                  {stats.pendingApprovalJobs}
-                                </Typography>
-                                <PendingIcon sx={{ fontSize: 24, color: 'rgba(255,255,255,0.8)' }} />
-                              </Stack>
-                              <Typography variant="body1" color="rgba(255,255,255,0.9)" fontWeight={500}>
-                                Pending Review
-                              </Typography>
-                              <Typography variant="caption" color="rgba(255,255,255,0.7)" fontWeight={500}>
-                                Awaiting approval
-                              </Typography>
-                            </CardContent>
-                          </Card>
-                        </Grid>
                       </Grid>
                     </Paper>
                   </Grid>

@@ -19,10 +19,6 @@ namespace ATSRecruitSys.Server.Services
             var activeJobs = await _context.Jobs
                 .Where(j => j.IsPublished && j.ClosingDate > DateTime.UtcNow)
                 .CountAsync();
-            
-            var pendingApprovalJobs = await _context.Jobs
-                .Where(j => !j.IsApproved && !j.IsPublished)
-                .CountAsync();
                 
             var totalApplications = await _context.JobApplications.CountAsync();
             var appliedApplications = await _context.JobApplications
@@ -45,7 +41,7 @@ namespace ATSRecruitSys.Server.Services
                 NewApplications = appliedApplications, // Fixed: Now tracks "Applied" status
                 ScreeningApplications = screeningApplications,
                 InterviewApplications = interviewApplications,
-                PendingApprovalJobs = pendingApprovalJobs
+                PendingApprovalJobs = 0 // Jobs auto-publish, no approval needed
             };
         }
 

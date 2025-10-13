@@ -342,15 +342,6 @@ const JobsPage: React.FC = () => {
           )}
         </Box>
 
-        {/* Role-based notice */}
-        {isRecruiterOrAdmin && !isAdmin() && (
-          <Alert severity="info" sx={{ mb: 3 }}>
-            <Typography variant="body2">
-              <strong>Recruiter Note:</strong> You can create and edit jobs, but only Administrators can publish them to make them visible to applicants.
-            </Typography>
-          </Alert>
-        )}
-
         {/* Enhanced Search Filters with Searchable Dropdowns */}
         <Paper elevation={1} sx={{ p: 3, mb: 3, backgroundColor: 'background.paper' }}>
           <Typography variant="h6" gutterBottom sx={{ mb: 2 }}>

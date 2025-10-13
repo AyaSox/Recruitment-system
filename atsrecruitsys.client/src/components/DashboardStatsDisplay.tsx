@@ -50,17 +50,16 @@ interface DashboardStatsDisplayProps {
 const DashboardStatsDisplay: React.FC<DashboardStatsDisplayProps> = ({ stats }) => {
   // Prepare data for jobs overview chart
   const jobsOverviewData = {
-    labels: ['Total Jobs', 'Active Jobs', 'Pending Approval'],
+    labels: ['Total Jobs', 'Active Jobs'],
     datasets: [
       {
         label: 'Jobs',
-        data: [stats.totalJobs, stats.activeJobs, stats.pendingApprovalJobs],
+        data: [stats.totalJobs, stats.activeJobs],
         backgroundColor: [
           'rgba(54, 162, 235, 0.6)',
           'rgba(75, 192, 192, 0.6)',
-          'rgba(255, 206, 86, 0.6)',
         ],
-        borderColor: ['rgba(54, 162, 235, 1)', 'rgba(75, 192, 192, 1)', 'rgba(255, 206, 86, 1)'],
+        borderColor: ['rgba(54, 162, 235, 1)', 'rgba(75, 192, 192, 1)'],
         borderWidth: 1,
       },
     ],
@@ -120,17 +119,6 @@ const DashboardStatsDisplay: React.FC<DashboardStatsDisplayProps> = ({ stats }) 
           </Typography>
           <Typography variant="body2" color="text.secondary">
             Total Applications
-          </Typography>
-        </StyledMetricPaper>
-      </Grid>
-
-      <Grid item xs={12} sm={6} md={3}>
-        <StyledMetricPaper elevation={3}>
-          <Typography variant="h4" color="primary">
-            {stats.pendingApprovalJobs}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Jobs Pending Approval
           </Typography>
         </StyledMetricPaper>
       </Grid>
