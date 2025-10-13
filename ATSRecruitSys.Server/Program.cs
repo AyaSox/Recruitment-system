@@ -4,6 +4,7 @@ using ATSRecruitSys.Server.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Data.Common;
+using System.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -545,10 +546,13 @@ static async Task EnsureEmploymentEquityMigrationAsync(ApplicationDbContext cont
             return;
         }
 
-        logger.LogInformation("Checking Employment Equity migration status...");
+        logger.LogInformation("?? Checking Employment Equity migration status...");
         
         var connection = context.Database.GetDbConnection();
-        await connection.OpenAsync();
+        if (connection.State != System.Data.ConnectionState.Open)
+        {
+            await connection.OpenAsync();
+        }
 
         // Check if the Employment Equity columns exist
         using var checkCommand = connection.CreateCommand();
@@ -562,33 +566,74 @@ static async Task EnsureEmploymentEquityMigrationAsync(ApplicationDbContext cont
         
         if (columnCount >= 2)
         {
-            logger.LogInformation("Employment Equity columns already exist. No migration needed.");
+            logger.LogInformation("? Employment Equity columns already exist. No migration needed.");
             return;
         }
 
-        logger.LogWarning("Employment Equity columns missing. Applying manual migration...");
+        logger.LogWarning("?? Employment Equity columns missing ({Count}/2 found). Applying emergency migration...", columnCount);
 
-        // Apply the Employment Equity migration manually
-        using var migrationCommand = connection.CreateCommand();
-        migrationCommand.CommandText = @"
-            -- Add Employment Equity columns
-            ALTER TABLE ""Jobs"" 
-            ADD COLUMN ""IsEmploymentEquityPosition"" boolean NOT NULL DEFAULT false;
+        // Apply the Employment Equity migration manually with better error handling
+        using var transaction = await connection.BeginTransactionAsync();
+        
+        try
+        {
+            // Add columns if they don't exist (one by one for better error reporting)
+            using var migrationCommand1 = connection.CreateCommand();
+            migrationCommand1.Transaction = transaction;
+            migrationCommand1.CommandText = @"
+                DO $$ BEGIN
+                    IF NOT EXISTS (
+                        SELECT 1 FROM information_schema.columns 
+                        WHERE table_name = 'Jobs' AND column_name = 'IsEmploymentEquityPosition'
+                    ) THEN
+                        ALTER TABLE ""Jobs"" ADD COLUMN ""IsEmploymentEquityPosition"" boolean NOT NULL DEFAULT false;
+                    END IF;
+                END $$;";
             
-            ALTER TABLE ""Jobs"" 
-            ADD COLUMN ""EmploymentEquityNotes"" text;
-            
-            -- Mark migration as applied
-            INSERT INTO ""__EFMigrationsHistory"" (""MigrationId"", ""ProductVersion"") 
-            VALUES ('20251013060811_AddEmploymentEquityFields', '8.0.11')
-            ON CONFLICT (""MigrationId"") DO NOTHING;";
+            await migrationCommand1.ExecuteNonQueryAsync();
+            logger.LogInformation("? IsEmploymentEquityPosition column added");
 
-        await migrationCommand.ExecuteNonQueryAsync();
-        logger.LogInformation("Employment Equity migration applied successfully!");
+            using var migrationCommand2 = connection.CreateCommand();
+            migrationCommand2.Transaction = transaction;
+            migrationCommand2.CommandText = @"
+                DO $$ BEGIN
+                    IF NOT EXISTS (
+                        SELECT 1 FROM information_schema.columns 
+                        WHERE table_name = 'Jobs' AND column_name = 'EmploymentEquityNotes'
+                    ) THEN
+                        ALTER TABLE ""Jobs"" ADD COLUMN ""EmploymentEquityNotes"" text;
+                    END IF;
+                END $$;";
+            
+            await migrationCommand2.ExecuteNonQueryAsync();
+            logger.LogInformation("? EmploymentEquityNotes column added");
+
+            // Mark migration as applied
+            using var migrationCommand3 = connection.CreateCommand();
+            migrationCommand3.Transaction = transaction;
+            migrationCommand3.CommandText = @"
+                INSERT INTO ""__EFMigrationsHistory"" (""MigrationId"", ""ProductVersion"") 
+                VALUES ('20251013060811_AddEmploymentEquityFields', '8.0.11')
+                ON CONFLICT (""MigrationId"") DO NOTHING;";
+
+            await migrationCommand3.ExecuteNonQueryAsync();
+            
+            await transaction.CommitAsync();
+            logger.LogInformation("?? Employment Equity migration applied successfully!");
+        }
+        catch (Exception innerEx)
+        {
+            await transaction.RollbackAsync();
+            logger.LogError(innerEx, "? Transaction failed, rolling back Employment Equity migration");
+            throw;
+        }
     }
     catch (Exception ex)
     {
-        logger.LogError(ex, "Failed to apply Employment Equity migration. Manual intervention may be required.");
-        // Don't throw - let the app continue
+        logger.LogError(ex, "?? CRITICAL: Failed to apply Employment Equity migration. Database may be incompatible with current code.");
+        logger.LogError("?? SOLUTION: Consider resetting Railway database or applying migration manually");
+        
+        // Still don't throw - but make it very clear this is a problem
+        logger.LogWarning("?? Application may not function correctly without Employment Equity columns");
     }
 }
