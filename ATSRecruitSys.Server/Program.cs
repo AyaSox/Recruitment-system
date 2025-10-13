@@ -3,6 +3,7 @@ using ATSRecruitSys.Server.Models;
 using ATSRecruitSys.Server.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Data.Common;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -285,6 +286,9 @@ using (var scope = app.Services.CreateScope())
             }
         }
         
+        // Fix Employment Equity migration if needed
+        await EnsureEmploymentEquityMigrationAsync(context, logger);
+        
         // Seed database
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
         var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
@@ -527,5 +531,64 @@ static async Task<bool> CanQueryDatabaseAsync(DbContext context, ILogger logger)
     {
         logger.LogWarning(ex, "Database query test failed: {Error}", ex.Message);
         return false;
+    }
+}
+
+// Helper: Ensure Employment Equity migration is applied
+static async Task EnsureEmploymentEquityMigrationAsync(ApplicationDbContext context, ILogger logger)
+{
+    try
+    {
+        if (context.Database.IsInMemory())
+        {
+            logger.LogInformation("In-memory database detected. Skipping Employment Equity migration check.");
+            return;
+        }
+
+        logger.LogInformation("Checking Employment Equity migration status...");
+        
+        var connection = context.Database.GetDbConnection();
+        await connection.OpenAsync();
+
+        // Check if the Employment Equity columns exist
+        using var checkCommand = connection.CreateCommand();
+        checkCommand.CommandText = @"
+            SELECT COUNT(*) 
+            FROM information_schema.columns 
+            WHERE table_name = 'Jobs' 
+            AND column_name IN ('IsEmploymentEquityPosition', 'EmploymentEquityNotes')";
+
+        var columnCount = Convert.ToInt32(await checkCommand.ExecuteScalarAsync());
+        
+        if (columnCount >= 2)
+        {
+            logger.LogInformation("Employment Equity columns already exist. No migration needed.");
+            return;
+        }
+
+        logger.LogWarning("Employment Equity columns missing. Applying manual migration...");
+
+        // Apply the Employment Equity migration manually
+        using var migrationCommand = connection.CreateCommand();
+        migrationCommand.CommandText = @"
+            -- Add Employment Equity columns
+            ALTER TABLE ""Jobs"" 
+            ADD COLUMN ""IsEmploymentEquityPosition"" boolean NOT NULL DEFAULT false;
+            
+            ALTER TABLE ""Jobs"" 
+            ADD COLUMN ""EmploymentEquityNotes"" text;
+            
+            -- Mark migration as applied
+            INSERT INTO ""__EFMigrationsHistory"" (""MigrationId"", ""ProductVersion"") 
+            VALUES ('20251013060811_AddEmploymentEquityFields', '8.0.11')
+            ON CONFLICT (""MigrationId"") DO NOTHING;";
+
+        await migrationCommand.ExecuteNonQueryAsync();
+        logger.LogInformation("Employment Equity migration applied successfully!");
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "Failed to apply Employment Equity migration. Manual intervention may be required.");
+        // Don't throw - let the app continue
     }
 }
