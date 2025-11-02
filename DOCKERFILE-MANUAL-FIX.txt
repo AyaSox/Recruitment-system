@@ -1,0 +1,42 @@
+DOCKERFILE FIX INSTRUCTIONS
+
+If you still see Dockerfile encoding errors on Render, follow these steps locally:
+
+1. Delete the corrupted Dockerfile:
+   Delete: C:\Users\cash\source\repos\ATSRecruitSys\Dockerfile
+
+2. Create a new clean Dockerfile with this exact content:
+
+---START OF DOCKERFILE---
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+COPY ATSRecruitSys.Server/ATSRecruitSys.Server.csproj ATSRecruitSys.Server/
+WORKDIR /src/ATSRecruitSys.Server
+RUN dotnet restore ATSRecruitSys.Server.csproj
+COPY ATSRecruitSys.Server/ .
+RUN dotnet build ATSRecruitSys.Server.csproj -c Release -o /app/build
+
+FROM build AS publish
+RUN dotnet publish ATSRecruitSys.Server.csproj -c Release -o /app/publish /p:UseAppHost=false
+
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+EXPOSE 10000
+ENTRYPOINT ["dotnet", "ATSRecruitSys.Server.dll"]
+---END OF DOCKERFILE---
+
+3. Save the file as: Dockerfile (no extension, plain text file)
+
+4. Commit and push:
+   git add Dockerfile
+   git commit -m "Fix Dockerfile encoding"
+   git push origin main
+
+5. On Render:
+   - Go to backend service
+   - Click Manual Deploy
+   - Select Deploy latest commit
+   - Should build successfully now
+
+IMPORTANT: The file MUST be saved as plain text UTF-8 encoding with NO BOM.
