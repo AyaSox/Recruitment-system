@@ -199,8 +199,11 @@ namespace ATSRecruitSys.Server.Services
 
         private async Task<string> GenerateJwtTokenAsync(ApplicationUser user)
         {
+            // Match Program.cs - prioritize environment variables over appsettings.json
             var jwtSettings = _configuration.GetSection("JwtSettings");
-            var secretKey = jwtSettings["SecretKey"] ?? "YourSuperSecretKeyThatIsAtLeast32CharactersLongForSecurity!";
+            var secretKey = _configuration["JWT_SECRET_KEY"] ?? jwtSettings["SecretKey"] ?? "YourSuperSecretKeyThatIsAtLeast32CharactersLongForSecurity!";
+            var issuer = _configuration["JWT_ISSUER"] ?? jwtSettings["Issuer"] ?? "ATSRecruitSys";
+            var audience = _configuration["JWT_AUDIENCE"] ?? jwtSettings["Audience"] ?? "ATSRecruitSys";
             
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -222,8 +225,8 @@ namespace ATSRecruitSys.Server.Services
             }
 
             var token = new JwtSecurityToken(
-                issuer: jwtSettings["Issuer"] ?? "ATSRecruitSys",
-                audience: jwtSettings["Audience"] ?? "ATSRecruitSys",
+                issuer: issuer,
+                audience: audience,
                 claims: claims,
                 expires: DateTime.UtcNow.AddDays(7), // Token expires in 7 days
                 signingCredentials: credentials
