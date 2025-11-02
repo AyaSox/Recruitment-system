@@ -179,35 +179,35 @@ app.MapControllers();
 using (var scope = app.Services.CreateScope())
 {
     var loggerFactory = scope.ServiceProvider.GetRequiredService<ILoggerFactory>();
-    var logger = loggerFactory.CreateLogger<Program>();
+    var seedLogger = loggerFactory.CreateLogger<DatabaseSeeder>();
     
     try
     {
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         
-        logger.LogInformation("?? Starting database initialization...");
+        seedLogger.LogInformation("?? Starting database initialization...");
         
         // Ensure in-memory database is created
         await context.Database.EnsureCreatedAsync();
-        logger.LogInformation("? In-memory database created");
+        seedLogger.LogInformation("? In-memory database created");
         
         // Seed database with demo data
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
         var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-        var seeder = new DatabaseSeeder(context, userManager, roleManager, logger);
+        var seeder = new DatabaseSeeder(context, userManager, roleManager, seedLogger);
         await seeder.SeedDatabaseAsync();
         
-        logger.LogInformation("? Database seeding completed");
-        logger.LogInformation("?? Demo data loaded and ready to use");
-        logger.LogInformation("?? Test Accounts:");
-        logger.LogInformation("   - Admin: admin@atsrecruitsys.com / Admin123!");
-        logger.LogInformation("   - Recruiter: recruiter@test.com / Test123!");
-        logger.LogInformation("   - HiringManager: hiringmanager@test.com / Test123!");
+        seedLogger.LogInformation("? Database seeding completed");
+        seedLogger.LogInformation("?? Demo data loaded and ready to use");
+        seedLogger.LogInformation("?? Test Accounts:");
+        seedLogger.LogInformation("   - Admin: admin@atsrecruitsys.com / Admin123!");
+        seedLogger.LogInformation("   - Recruiter: recruiter@test.com / Test123!");
+        seedLogger.LogInformation("   - HiringManager: hiringmanager@test.com / Test123!");
     }
     catch (Exception ex)
     {
-        var logger = LoggerFactory.Create(b => b.AddConsole()).CreateLogger("Startup");
-        logger.LogError(ex, "? Error during database initialization");
+        var errorLogger = LoggerFactory.Create(b => b.AddConsole()).CreateLogger("Startup");
+        errorLogger.LogError(ex, "? Error during database initialization");
         throw;
     }
 }
