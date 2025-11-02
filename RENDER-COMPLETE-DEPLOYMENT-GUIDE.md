@@ -82,21 +82,22 @@ Before starting, ensure:
 
 Click **"Advanced"** then **"Add Environment Variable"**
 
-Add ONLY these variables (minimal setup):
+**?? CRITICAL: Add ALL these variables to fix login timeout:**
 
 ```
 ASPNETCORE_ENVIRONMENT = Production
 ASPNETCORE_URLS = http://+:10000
+JWT_SECRET_KEY = YourSuperSecretKeyThatIsAtLeast32CharactersLongForSecurity!
+JWT_ISSUER = ATSRecruitSys
+JWT_AUDIENCE = ATSRecruitSys
+FRONTEND_URL = https://ats-recruitment-frontend.onrender.com
+BACKEND_URL = https://ats-recruitment-backend.onrender.com
 ```
 
-**That's it!** ?
-
-**Why just these?**
-- `ASPNETCORE_ENVIRONMENT=Production` ? Uses production settings
-- `ASPNETCORE_URLS=http://+:10000` ? Backend listens on port 10000
-- In-memory database needs no connection config
-- JWT auth will use defaults if not set
-- Perfect for demo with no external dependencies
+**?? IMPORTANT:** 
+- The JWT_SECRET_KEY is already built into your code
+- These exact values will fix your login timeout issue
+- Make sure URLs match your actual Render service names
 
 ### 3.4 Create Service
 
@@ -109,7 +110,7 @@ ASPNETCORE_URLS = http://+:10000
 - Look for blue link like: `https://ats-recruitment-backend.onrender.com`
 - **Copy this URL** - you'll need it for frontend config
 
-**Example:**
+**Your Backend URL:**
 ```
 https://ats-recruitment-backend.onrender.com
 ```
@@ -143,7 +144,7 @@ Add:
 VITE_API_URL = https://ats-recruitment-backend.onrender.com/api
 ```
 
-**Replace** `ats-recruitment-backend` with your actual backend service name if different!
+**? This matches your actual backend URL!**
 
 ### 4.3 Create Static Site
 
@@ -335,14 +336,19 @@ You should see the **Swagger API documentation** ?
 
 ## ?? ENVIRONMENT VARIABLES REFERENCE
 
-### Backend (Render) - MINIMAL
+### Backend (Render) - COMPLETE FOR LOGIN FIX
 
 ```
 ASPNETCORE_ENVIRONMENT = Production
 ASPNETCORE_URLS = http://+:10000
+JWT_SECRET_KEY = YourSuperSecretKeyThatIsAtLeast32CharactersLongForSecurity!
+JWT_ISSUER = ATSRecruitSys
+JWT_AUDIENCE = ATSRecruitSys
+FRONTEND_URL = https://ats-recruitment-frontend.onrender.com
+BACKEND_URL = https://ats-recruitment-backend.onrender.com
 ```
 
-? **That's all you need for demo!**
+**?? All 7 variables are REQUIRED to fix login timeout!**
 
 ### Frontend (Render)
 
