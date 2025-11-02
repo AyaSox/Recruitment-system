@@ -39,7 +39,9 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 
 // JWT Configuration
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-var secretKey = jwtSettings["SecretKey"] ?? "YourSuperSecretKeyThatIsAtLeast32CharactersLongForSecurity!";
+var jwtSecret = builder.Configuration["JWT_SECRET_KEY"] ?? jwtSettings["SecretKey"] ?? "YourSuperSecretKeyThatIsAtLeast32CharactersLongForSecurity!";
+var jwtIssuer = builder.Configuration["JWT_ISSUER"] ?? jwtSettings["Issuer"] ?? "ATSRecruitSys";
+var jwtAudience = builder.Configuration["JWT_AUDIENCE"] ?? jwtSettings["Audience"] ?? "ATSRecruitSys";
 
 builder.Services.AddAuthentication(options =>
 {
@@ -54,10 +56,30 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = jwtSettings["Issuer"] ?? "ATSRecruitSys",
-        ValidAudience = jwtSettings["Audience"] ?? "ATSRecruitSys",
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
+        ValidIssuer = jwtIssuer,
+        ValidAudience = jwtAudience,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret)),
         ClockSkew = TimeSpan.Zero
+    };
+    
+    // Add event handlers for debugging
+    options.Events = new JwtBearerEvents
+    {
+        OnAuthenticationFailed = context =>
+        {
+            Console.WriteLine($"Authentication failed: {context.Exception.Message}");
+            return Task.CompletedTask;
+        },
+        OnTokenValidated = context =>
+        {
+            Console.WriteLine("Token validated successfully");
+            return Task.CompletedTask;
+        },
+        OnChallenge = context =>
+        {
+            Console.WriteLine($"JWT Challenge: {context.Error}, {context.ErrorDescription}");
+            return Task.CompletedTask;
+        }
     };
 });
 
@@ -124,6 +146,9 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 // Add CORS
+var frontendUrl = builder.Configuration["FRONTEND_URL"] ?? "https://ats-recruitment-frontend.onrender.com";
+var backendUrl = builder.Configuration["BACKEND_URL"] ?? "https://ats-recruitment-backend.onrender.com";
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp", policy =>
@@ -137,12 +162,31 @@ builder.Services.AddCors(options =>
         }
         else
         {
-            // Production CORS - Allow Render deployment URLs
-            policy.WithOrigins(
-                "https://ats-recruitment-frontend.onrender.com",
-                "https://ats-recruitment-backend.onrender.com",
-                "http://localhost:5173" // Allow local development
-            )
+            // Production CORS - Allow Render deployment URLs dynamically
+            policy.SetIsOriginAllowed(origin =>
+            {
+                // Allow localhost for development
+                if (origin.StartsWith("http://localhost") || origin.StartsWith("https://localhost"))
+                    return true;
+                
+                // Allow any Render.com domain
+                if (origin.EndsWith(".onrender.com"))
+                    return true;
+                
+                // Allow configured frontend URL
+                if (origin == frontendUrl)
+                    return true;
+                
+                // Allow specific domains if needed
+                var allowedDomains = new[] {
+                    "https://ats-recruitment-frontend.onrender.com",
+                    "https://ats-recruitment-backend.onrender.com",
+                    frontendUrl,
+                    backendUrl
+                };
+                
+                return allowedDomains.Contains(origin);
+            })
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();
