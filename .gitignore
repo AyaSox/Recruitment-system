@@ -402,3 +402,70 @@ node_modules/
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Dependencies
+node_modules/
+dist/
+build/
+bin/
+obj/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Build artifacts
+*.dll
+*.exe
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Package manager
+package-lock.json
+yarn.lock
+
+# Unnecessary documentation (keep only README and RENDER files)
+APPROVAL-WORKFLOW-REMOVAL-COMPLETE.md
+CLEANUP-SUMMARY.md
+CRITICAL-FIX-PROTECTEDROUTE-HIRINGMANAGER.md
+EMPLOYMENT-EQUITY-BEFORE-AFTER.md
+EMPLOYMENT-EQUITY-FIELDS-COMPLETE.md
+EMPLOYMENT-EQUITY-QUICK-REF.md
+EMPLOYMENT-EQUITY-SUMMARY.md
+FORCE-VERCEL-REDEPLOY-HIRINGMANAGER.md
+HIRINGMANAGER-ACCESS-FIX-COMPLETE.md
+HIRINGMANAGER-FIX-QUICK-GUIDE.md
+HIRINGMANAGER-STEP-BY-STEP-FIX.md
+JOB-AUTO-PUBLISH-COMPLETE.md
+JOB-AUTO-PUBLISH-QUICK-REF.md
+JOB-AUTO-PUBLISH-VISUAL-COMPARISON.md
+JOB-PERMISSION-ERROR-MESSAGES-IMPROVED.md
+QUICK-FIX-HIRINGMANAGER-ACCESS.md
+RAILWAY-DATABASE-RESET-EMPLOYMENT-EQUITY-FIX.md
+RAILWAY-DEPLOYMENT-EMPLOYMENT-EQUITY.md
+RAILWAY-EMPLOYMENT-EQUITY-MIGRATION-FIX.md
+RAILWAY-POSTGRESQL-CONNECTION-FIX.md
+ROLE-ACCESS-CONFIGURATION-COMPLETE.md
+cleanup-md-files.bat
