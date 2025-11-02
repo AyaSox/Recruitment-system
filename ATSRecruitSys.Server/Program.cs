@@ -191,10 +191,15 @@ builder.Services.AddCors(options =>
         }
         else
         {
-            // Production CORS - Update with your actual domains
-            policy.AllowAnyOrigin()
-                  .AllowAnyHeader()
-                  .AllowAnyMethod();
+            // Production CORS - Allow Render deployment URLs
+            policy.WithOrigins(
+                "https://ats-recruitment-frontend.onrender.com",
+                "https://ats-recruitment-backend.onrender.com",
+                "http://localhost:5173" // Allow local development
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
         }
     });
 });

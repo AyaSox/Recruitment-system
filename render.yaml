@@ -1,0 +1,66 @@
+services:
+  # PostgreSQL Database
+  - type: pgsql
+    name: ats-recruitment-db
+    plan: free
+    region: oregon
+    ipAllowList: [] # Allow all (free tier limitation)
+
+  # Backend API (.NET 8)
+  - type: web
+    name: ats-recruitment-backend
+    runtime: docker
+    plan: free
+    region: oregon
+    
+    repo: https://github.com/AyaSox/Recruitment-system
+    branch: main
+    
+    dockerfile: Dockerfile
+    dockerContext: .
+    
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      
+      - key: ASPNETCORE_URLS
+        value: http://+:10000
+      
+      - key: DATABASE_URL
+        fromService:
+          name: ats-recruitment-db
+          property: connectionString
+      
+      - key: JwtSettings__SecretKey
+        value: YourSuperSecretKeyThatIsAtLeast32CharactersLongForSecurity!
+      
+      - key: JwtSettings__Issuer
+        value: ATSRecruitSys
+      
+      - key: JwtSettings__Audience
+        value: ATSRecruitSys
+    
+    dependsOn:
+      - ats-recruitment-db
+
+  # Frontend (React/Vite)
+  - type: web
+    name: ats-recruitment-frontend
+    runtime: node
+    plan: free
+    region: oregon
+    
+    repo: https://github.com/AyaSox/Recruitment-system
+    branch: main
+    
+    buildCommand: cd atsrecruitsys.client && npm install && npm run build
+    startCommand: npm run preview -- --host 0.0.0.0 --port 10001
+    
+    publishPath: atsrecruitsys.client/dist
+    
+    envVars:
+      - key: VITE_API_URL
+        value: https://ats-recruitment-backend.onrender.com/api
+    
+    dependsOn:
+      - ats-recruitment-backend
