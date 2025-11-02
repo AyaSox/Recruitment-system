@@ -82,21 +82,21 @@ Before starting, ensure:
 
 Click **"Advanced"** then **"Add Environment Variable"**
 
-Add these variables:
+Add ONLY these variables (minimal setup):
 
 ```
 ASPNETCORE_ENVIRONMENT = Production
 ASPNETCORE_URLS = http://+:10000
-JwtSettings__SecretKey = YourSuperSecretKeyThatIsAtLeast32CharactersLongForSecurity!
-JwtSettings__Issuer = ATSRecruitSys
-JwtSettings__Audience = ATSRecruitSys
 ```
 
-**Why these variables?**
+**That's it!** ?
+
+**Why just these?**
 - `ASPNETCORE_ENVIRONMENT=Production` ? Uses production settings
 - `ASPNETCORE_URLS=http://+:10000` ? Backend listens on port 10000
-- `JwtSettings__*` ? JWT authentication configuration
-- All use in-memory database (no external DB needed)
+- In-memory database needs no connection config
+- JWT auth will use defaults if not set
+- Perfect for demo with no external dependencies
 
 ### 3.4 Create Service
 
@@ -335,15 +335,14 @@ You should see the **Swagger API documentation** ?
 
 ## ?? ENVIRONMENT VARIABLES REFERENCE
 
-### Backend (Render)
+### Backend (Render) - MINIMAL
 
 ```
 ASPNETCORE_ENVIRONMENT = Production
 ASPNETCORE_URLS = http://+:10000
-JwtSettings__SecretKey = YourSuperSecretKeyThatIsAtLeast32CharactersLongForSecurity!
-JwtSettings__Issuer = ATSRecruitSys
-JwtSettings__Audience = ATSRecruitSys
 ```
+
+? **That's all you need for demo!**
 
 ### Frontend (Render)
 
