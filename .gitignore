@@ -402,3 +402,58 @@ node_modules/
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# ==================================
+# ATS Recruitment System - Custom
+# ==================================
+
+# Temporary documentation files
+*-COMPLETE.md
+*-FIX*.md
+*-GUIDE*.md
+*-SUMMARY*.md
+*-STATUS*.md
+*-QUICK*.md
+*-DEPLOYMENT*.md
+*-CHECKLIST*.md
+*-PROGRESS*.md
+*-IMPLEMENTATION*.md
+*-REFERENCE*.md
+*-COMPARISON*.md
+*-VISUAL*.md
+*-ACTION*.md
+*-STEP*.md
+
+# Cleanup and deployment scripts
+cleanup-*.ps1
+cleanup-*.bat
+deploy-*.ps1
+deploy-*.bat
+test-*.ps1
+test-*.bat
+start-*.ps1
+start-*.bat
+stop-*.ps1
+stop-*.bat
+fix-*.ps1
+fix-*.bat
+setup-*.ps1
+install-*.ps1
+quick-*.ps1
+
+# Manual fix instructions
+*-MANUAL-FIX.txt
+*-ACTION-ITEMS.txt
+*-FIX.txt
+
+# Temporary deployment configurations
+railway.template.json
+render.template.yaml
+vercel.template.json
+nixpacks.template.toml
+
+# Keep essential deployment files
+!render.yaml
+!railway.json
+!nixpacks.toml
+!Procfile
